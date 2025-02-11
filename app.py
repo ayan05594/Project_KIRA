@@ -95,6 +95,93 @@ def register():
         logger.error(f"Error during registration: {e}")
         return jsonify({"success": False, "message": "An error occurred during registration"}), 500
 
+@app.route("/send-otp", methods=["POST"])
+def send_otp():
+    try:
+        data = request.json
+        email = data.get("email")
+
+        if not email:
+            return jsonify({"success": False, "message": "Email is required"}), 400
+
+        # Generate a 4-digit OTP
+        otp = str(random.randint(1000, 9999))
+        expiry_time = datetime.utcnow() + timedelta(minutes=15)  # OTP expires in 15 minutes
+
+        # Store OTP in the database
+        mongo.db.otp_verification.update_one(
+            {"email": email},
+            {"$set": {"otp": otp, "expires_at": expiry_time}},
+            upsert=True
+        )
+
+        # Send OTP via email
+        msg = Message(
+            subject="Your OTP Code",
+            sender=app.config["MAIL_USERNAME"],
+            recipients=[email],
+            body=f"Your OTP for registration is: {otp}. It will expire in 15 minutes."
+        )
+        mail.send(msg)
+
+        return jsonify({"success": True, "message": "OTP sent successfully"}), 200
+
+    except Exception as e:
+        logger.error(f"Error sending OTP: {e}")
+        return jsonify({"success": False, "message": "An error occurred"}), 500
+
+
+
+@app.route("/verify-otp", methods=["POST"])
+def verify_otp():
+    try:
+        data = request.json
+        name = data.get("name")
+        email = data.get("email")
+        roll_number = data.get("rollNumber")
+        password = data.get("password")
+        otp = data.get("otp")
+
+        # Validate all fields
+        if not all([name, email, roll_number, password, otp]):
+            return jsonify({"success": False, "message": "All fields are required"}), 400
+
+        # Fetch OTP from the database
+        otp_record = mongo.db.otp_verification.find_one({"email": email})
+
+        if not otp_record or otp_record["otp"] != otp:
+            return jsonify({"success": False, "message": "Invalid OTP"}), 400
+
+        # Check if OTP has expired
+        if otp_record["expires_at"] < datetime.utcnow():
+            return jsonify({"success": False, "message": "OTP has expired"}), 400
+
+        # Check if the user already exists
+        existing_user = mongo.db.users.find_one({"email": email})
+        if existing_user:
+            return jsonify({"success": False, "message": "This email is already registered"}), 400
+
+        # Hash the password
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+
+        # Insert the user into the database
+        mongo.db.users.insert_one({
+            "name": name,
+            "email": email,
+            "roll_number": roll_number,
+            "password": hashed_password
+        })
+
+        # Remove OTP record after successful verification
+        mongo.db.otp_verification.delete_one({"email": email})
+
+        return jsonify({"success": True, "message": "User registered successfully"}), 201
+
+    except Exception as e:
+        logger.error(f"Error verifying OTP: {e}")
+        return jsonify({"success": False, "message": "An error occurred"}), 500
+
+
 # User Login Endpoint
 @app.route("/login", methods=["POST"])
 def login():
@@ -280,8 +367,9 @@ def reset_password():
         return jsonify({"success": False, "message": "An error occurred"}), 500
     
 # Verify OTP Endpoint
-@app.route("/verify-otp", methods=["POST"])
-def verify_otp():
+# Verify OTP for Password Reset (Rename this route)
+@app.route("/verify-reset-otp", methods=["POST"])
+def verify_reset_otp():
     try:
         data = request.json
         email = data.get("email")

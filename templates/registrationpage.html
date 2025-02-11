@@ -163,8 +163,20 @@
       </div>
 
       <!-- Submit Button -->
-      <button type="submit">Register</button>
+      <button type="button" id="send-otp">Send OTP</button>
+
+      <!-- OTP Section (Initially Hidden) -->
+<div id="otp-section" style="display: none;">
+  <div class="input-box">
+    <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+    <i class='bx bxs-key'></i>
+  </div>
+  <button type="button" id="verify-otp">Verify OTP</button>
+</div>
+      
     </form>
+
+
 
     <!-- Footer -->
     <div class="form-footer">
@@ -175,52 +187,115 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     $(document).ready(function () {
-      // Handle registration form submission using AJAX
-      $("#register-form").submit(function (event) {
-        event.preventDefault(); // Prevent the default form submission
+  $("#send-otp").click(function () {
+    var name = $("#name").val().trim();
+    var email = $("#email").val().trim();
+    var rollNumber = $("#roll-number").val().trim();
+    var password = $("#password").val().trim();
+    var confirmPassword = $("#confirm-password").val().trim();
 
-        var name = $("#name").val();
-        var email = $("#email").val();
-        var rollNumber = $("#roll-number").val();
-        var password = $("#password").val();
-        var confirmPassword = $("#confirm-password").val();
+    // Check if all fields are filled
+    if (!name || !email || !rollNumber || !password || !confirmPassword) {
+      showWarning("#email", "Please fill all fields.");
+      return;
+    }
 
-        if (!email.endsWith("@kiit.ac.in")) {
-        alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
-        return;
-      }
+    // Validate KIIT email
+    if (!email.endsWith("@kiit.ac.in")) {
+      alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
+      return;
+    }
 
-        // Validate password match
-        if (password !== confirmPassword) {
-          alert("Passwords do not match.");
-          return;
+    // Send OTP request
+    $.ajax({
+      type: "POST",
+      url: "/send-otp",
+      contentType: "application/json",
+      data: JSON.stringify({ email: email }),
+      success: function (response) {
+        if (response.success) {
+          alert("OTP sent to your email.");
+          $("#send-otp").hide(); // Hide the "Send OTP" button
+          $("#otp-section").show(); // Show the OTP input field and "Verify OTP" button
+        } else {
+          alert(response.message); // Display error message
         }
-
-        // Send the registration data to the backend
-        $.ajax({
-          type: "POST",
-          url: "/register",  // Endpoint for registration
-          contentType: "application/json",
-          data: JSON.stringify({
-            name: name,
-            email: email,
-            rollNumber: rollNumber,
-            password: password
-          }),
-          success: function (response) {
-            if (response.success) {
-              alert("User registered successfully!");
-              window.location.href = "/";  // Redirect to login page
-            } else {
-              alert(response.message); // Display error message if registration fails
-            }
-          },
-          error: function (xhr) {
-            alert("Error: " + xhr.responseJSON.message);
-          }
-        });
-      });
+      },
+      error: function (xhr) {
+        alert("Error: " + xhr.responseJSON.message);
+      },
     });
+    function showWarning(inputField, message) {
+    var input = $(inputField);
+    input.focus();
+    input[0].setCustomValidity(message);
+    input[0].reportValidity();
+    setTimeout(() => input[0].setCustomValidity(""), 3000); // Remove warning after 3 seconds
+  }
+  });
+  
+
+  // VERIFY OTP FUNCTIONALITY
+  $("#verify-otp").click(function () {
+    var name = $("#name").val().trim();
+    var email = $("#email").val().trim();
+    var rollNumber = $("#roll-number").val().trim();
+    var password = $("#password").val().trim();
+    var confirmPassword = $("#confirm-password").val().trim();
+    var otp = $("#otp").val().trim();
+
+    // Validate all fields before verification
+    if (!name || !email || !rollNumber || !password || !confirmPassword || !otp) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    // Validate KIIT email
+    if (!email.endsWith("@kiit.ac.in")) {
+      alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
+      return;
+    }
+
+    // Ensure OTP is entered
+    if (!otp) {
+      alert("Please enter the OTP.");
+      return;
+    }
+
+    // Send OTP verification request
+    $.ajax({
+      type: "POST",
+      url: "/verify-otp",
+      contentType: "application/json",
+      data: JSON.stringify({
+        name: name,
+        email: email,
+        rollNumber: rollNumber,
+        password: password,
+        otp: otp,
+      }),
+      success: function (response) {
+        if (response.success) {
+          alert("User registered successfully!");
+          window.location.href = "/"; // Redirect to login page
+        } else {
+          alert(response.message); // Display error message
+        }
+      },
+      error: function (xhr) {
+        alert("Error: " + (xhr.responseJSON?.message || "Something went wrong."));
+      },
+    });
+  });
+});
+
+
   </script>
 </body>
 
