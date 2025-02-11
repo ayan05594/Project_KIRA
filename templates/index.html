@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - KIIT Chat Bot</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <div class="outer-container">
+    <div class="container">
+      <div class="form-container">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          </div>
+          <button type="submit">Login</button>
+          <div class="footer">
+            <p>Don't have an account? <a href="/register-page">Register here</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      // Handle login form submission using AJAX
+      $("#login-form").submit(function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var email = $("#email").val();
+        var password = $("#password").val();
+
+        // Send the email and password as JSON data to the backend
+        $.ajax({
+          type: "POST",
+          url: "/login",  // This is the endpoint where the backend handles the login
+          contentType: "application/json",
+          data: JSON.stringify({ email: email, password: password }),  // Send the data
+          success: function (response) {
+            if (response.success) {
+              // If login is successful, redirect to the chat page
+              window.location.href = response.redirect;
+            } else {
+              alert(response.message); // Display error message if login fails
+            }
+          },
+          error: function () {
+            alert("Server error. Please try again later.");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
