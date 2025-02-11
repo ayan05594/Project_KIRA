@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registration Form</title>
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <style>
-    /* General Styles */
-    body {
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+      /* General Styles */
+      body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
@@ -22,29 +21,25 @@
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-
-    .container {
+      }
+      .container {
       width: 100%;
       max-width: 500px;
       background-color: rgba(36, 52, 71, 0.9);
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
+      }
+      h1 {
       text-align: center;
       color: #fff;
       margin-bottom: 20px;
-    }
-
-    .input-box {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-    .input-field {
+      }
+      .input-box {
+      position: relative;
+      margin-bottom: 20px;
+      }
+      .input-field {
       width: 100%;
       padding: 10px;
       padding-left: 40px;
@@ -52,28 +47,24 @@
       border-radius: 5px;
       font-size: 16px;
       color: #333;
-    }
-
-    .input-box i {
-    position: absolute;
-    top: 50%;
-    right: 10px; /* Move icon to the right */
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #888;
-}
-
-    .checkbox-container {
+      }
+      .input-box i {
+      position: absolute;
+      top: 50%;
+      right: 10px; /* Move icon to the right */
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+      }
+      .checkbox-container {
       display: flex;
       align-items: center;
       margin-bottom: 20px;
-    }
-
-    .checkbox-container input {
+      }
+      .checkbox-container input {
       margin-right: 10px;
-    }
-
-    button {
+      }
+      button {
       width: 100%;
       padding: 15px;
       background-color: #38ef7d;
@@ -83,220 +74,199 @@
       font-size: 18px;
       cursor: pointer;
       transition: background-color 0.3s ease-in-out;
-    }
-
-    button:hover {
+      }
+      button:hover {
       background-color: #38ef7d;
-    }
-
-    .form-footer {
+      }
+      .form-footer {
       text-align: center;
       margin-top: 20px;
-    }
-
-    .form-footer a {
+      }
+      .form-footer a {
       color: #38ef7d;
       text-decoration: none;
-    }
-
-    .form-footer a:hover {
+      }
+      .form-footer a:hover {
       text-decoration: underline;
-    }
-
-    /* Keyframes for Animation */
-    @keyframes fadeInUp {
+      }
+      /* Keyframes for Animation */
+      @keyframes fadeInUp {
       0% {
-        opacity: 0;
-        transform: translateY(20px);
+      opacity: 0;
+      transform: translateY(20px);
       }
       100% {
-        opacity: 1;
-        transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
       }
-    }
-
-    .container {
+      }
+      .container {
       animation: fadeInUp 0.8s ease-in-out;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="container">
-    <h1>Register</h1>
-    <form id="register-form" onsubmit="return false;">
-      <!-- Full Name -->
-      <div class="input-box">
-        <input type="text" id="name" name="name" placeholder="Full Name" required>
-        <i class='bx bxs-user'></i>
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Register</h1>
+      <form id="register-form" onsubmit="return false;">
+        <!-- Full Name -->
+        <div class="input-box">
+          <input type="text" id="name" name="name" placeholder="Full Name" required>
+          <i class='bx bxs-user'></i>
+        </div>
+        <!-- Email -->
+        <div class="input-box">
+          <input type="email" id="email" name="email" placeholder="Email" required>
+          <i class='bx bxs-envelope'></i>
+        </div>
+        <!-- KIIT Roll Number -->
+        <div class="input-box">
+          <input type="text" id="roll-number" name="roll-number" placeholder="KIIT Roll Number" required>
+          <i class='bx bxs-id-card'></i>
+        </div>
+        <!-- Password -->
+        <div class="input-box">
+          <input type="password" id="password" name="password" placeholder="Password" required>
+          <i class='bx bxs-lock-alt'></i>
+        </div>
+        <!-- Confirm Password -->
+        <div class="input-box">
+          <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+          <i class='bx bxs-lock-alt'></i>
+        </div>
+        <!-- Terms and Conditions -->
+        <div class="checkbox-container">
+          <input type="checkbox" id="terms" name="terms" required>
+          <label for="terms">I agree to the <a href="#">terms and conditions</a>.</label>
+        </div>
+        <!-- Submit Button -->
+        <button type="button" id="send-otp">Send OTP</button>
+        <!-- OTP Section (Initially Hidden) -->
+        <div id="otp-section" style="display: none;">
+          <div class="input-box">
+            <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+            <i class='bx bxs-key'></i>
+          </div>
+          <button type="button" id="verify-otp">Verify OTP</button>
+        </div>
+      </form>
+      <!-- Footer -->
+      <div class="form-footer">
+        <p>Already have an account? <a href="/">Login here</a></p>
       </div>
-
-      <!-- Email -->
-      <div class="input-box">
-        <input type="email" id="email" name="email" placeholder="Email" required>
-        <i class='bx bxs-envelope'></i>
-      </div>
-
-      <!-- KIIT Roll Number -->
-      <div class="input-box">
-        <input type="text" id="roll-number" name="roll-number" placeholder="KIIT Roll Number" required>
-        <i class='bx bxs-id-card'></i>
-      </div>
-
-      <!-- Password -->
-      <div class="input-box">
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <i class='bx bxs-lock-alt'></i>
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="input-box">
-        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
-        <i class='bx bxs-lock-alt'></i>
-      </div>
-
-      <!-- Terms and Conditions -->
-      <div class="checkbox-container">
-        <input type="checkbox" id="terms" name="terms" required>
-        <label for="terms">I agree to the <a href="#">terms and conditions</a>.</label>
-      </div>
-
-      <!-- Submit Button -->
-      <button type="button" id="send-otp">Send OTP</button>
-
-      <!-- OTP Section (Initially Hidden) -->
-<div id="otp-section" style="display: none;">
-  <div class="input-box">
-    <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
-    <i class='bx bxs-key'></i>
-  </div>
-  <button type="button" id="verify-otp">Verify OTP</button>
-</div>
-      
-    </form>
-
-
-
-    <!-- Footer -->
-    <div class="form-footer">
-      <p>Already have an account? <a href="/">Login here</a></p>
     </div>
-  </div>
-
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    $(document).ready(function () {
-  $("#send-otp").click(function () {
-    var name = $("#name").val().trim();
-    var email = $("#email").val().trim();
-    var rollNumber = $("#roll-number").val().trim();
-    var password = $("#password").val().trim();
-    var confirmPassword = $("#confirm-password").val().trim();
-
-    // Check if all fields are filled
-    if (!name || !email || !rollNumber || !password || !confirmPassword) {
-      showWarning("#email", "Please fill all fields.");
-      return;
-    }
-
-    // Validate KIIT email
-    if (!email.endsWith("@kiit.ac.in")) {
-      alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
-      return;
-    }
-
-    // Send OTP request
-    $.ajax({
-      type: "POST",
-      url: "/send-otp",
-      contentType: "application/json",
-      data: JSON.stringify({ email: email }),
-      success: function (response) {
-        if (response.success) {
-          alert("OTP sent to your email.");
-          $("#send-otp").hide(); // Hide the "Send OTP" button
-          $("#otp-section").show(); // Show the OTP input field and "Verify OTP" button
-        } else {
-          alert(response.message); // Display error message
-        }
-      },
-      error: function (xhr) {
-        alert("Error: " + xhr.responseJSON.message);
-      },
-    });
-    function showWarning(inputField, message) {
-    var input = $(inputField);
-    input.focus();
-    input[0].setCustomValidity(message);
-    input[0].reportValidity();
-    setTimeout(() => input[0].setCustomValidity(""), 3000); // Remove warning after 3 seconds
-  }
-  });
-  
-
-  // VERIFY OTP FUNCTIONALITY
-  $("#verify-otp").click(function () {
-    var name = $("#name").val().trim();
-    var email = $("#email").val().trim();
-    var rollNumber = $("#roll-number").val().trim();
-    var password = $("#password").val().trim();
-    var confirmPassword = $("#confirm-password").val().trim();
-    var otp = $("#otp").val().trim();
-
-    // Validate all fields before verification
-    if (!name || !email || !rollNumber || !password || !confirmPassword || !otp) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      alert("Passwords do not match.");
-      return;
-    }
-
-    // Validate KIIT email
-    if (!email.endsWith("@kiit.ac.in")) {
-      alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
-      return;
-    }
-
-    // Ensure OTP is entered
-    if (!otp) {
-      alert("Please enter the OTP.");
-      return;
-    }
-
-    // Send OTP verification request
-    $.ajax({
-      type: "POST",
-      url: "/verify-otp",
-      contentType: "application/json",
-      data: JSON.stringify({
-        name: name,
-        email: email,
-        rollNumber: rollNumber,
-        password: password,
-        otp: otp,
-      }),
-      success: function (response) {
-        if (response.success) {
-          alert("User registered successfully!");
-          window.location.href = "/"; // Redirect to login page
-        } else {
-          alert(response.message); // Display error message
-        }
-      },
-      error: function (xhr) {
-        alert("Error: " + (xhr.responseJSON?.message || "Something went wrong."));
-      },
-    });
-  });
-});
-
-
-  </script>
-</body>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+      $("#send-otp").click(function () {
+      var name = $("#name").val().trim();
+      var email = $("#email").val().trim();
+      var rollNumber = $("#roll-number").val().trim();
+      var password = $("#password").val().trim();
+      var confirmPassword = $("#confirm-password").val().trim();
+      
+      // Check if all fields are filled
+      if (!name || !email || !rollNumber || !password || !confirmPassword) {
+        showWarning("#email", "Please fill all fields.");
+        return;
+      }
+      
+      // Validate KIIT email
+      if (!email.endsWith("@kiit.ac.in")) {
+        alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
+        return;
+      }
+      
+      // Send OTP request
+      $.ajax({
+        type: "POST",
+        url: "/send-otp",
+        contentType: "application/json",
+        data: JSON.stringify({ email: email }),
+        success: function (response) {
+          if (response.success) {
+            alert("OTP sent to your email.");
+            $("#send-otp").hide(); // Hide the "Send OTP" button
+            $("#otp-section").show(); // Show the OTP input field and "Verify OTP" button
+          } else {
+            alert(response.message); // Display error message
+          }
+        },
+        error: function (xhr) {
+          alert("Error: " + xhr.responseJSON.message);
+        },
+      });
+      function showWarning(inputField, message) {
+      var input = $(inputField);
+      input.focus();
+      input[0].setCustomValidity(message);
+      input[0].reportValidity();
+      setTimeout(() => input[0].setCustomValidity(""), 3000); // Remove warning after 3 seconds
+      }
+      });
+      
+      
+      // VERIFY OTP FUNCTIONALITY
+      $("#verify-otp").click(function () {
+      var name = $("#name").val().trim();
+      var email = $("#email").val().trim();
+      var rollNumber = $("#roll-number").val().trim();
+      var password = $("#password").val().trim();
+      var confirmPassword = $("#confirm-password").val().trim();
+      var otp = $("#otp").val().trim();
+      
+      // Validate all fields before verification
+      if (!name || !email || !rollNumber || !password || !confirmPassword || !otp) {
+        alert("Please fill in all fields.");
+        return;
+      }
+      
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+      
+      // Validate KIIT email
+      if (!email.endsWith("@kiit.ac.in")) {
+        alert("Please enter a valid KIIT email (ending with @kiit.ac.in).");
+        return;
+      }
+      
+      // Ensure OTP is entered
+      if (!otp) {
+        alert("Please enter the OTP.");
+        return;
+      }
+      
+      // Send OTP verification request
+      $.ajax({
+        type: "POST",
+        url: "/verify-otp",
+        contentType: "application/json",
+        data: JSON.stringify({
+          name: name,
+          email: email,
+          rollNumber: rollNumber,
+          password: password,
+          otp: otp,
+        }),
+        success: function (response) {
+          if (response.success) {
+            alert("User registered successfully!");
+            window.location.href = "/"; // Redirect to login page
+          } else {
+            alert(response.message); // Display error message
+          }
+        },
+        error: function (xhr) {
+          alert("Error: " + (xhr.responseJSON?.message || "Something went wrong."));
+        },
+      });
+      });
+      });
+      
+      
+    </script>
+  </body>
 </html>

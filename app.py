@@ -8,6 +8,8 @@ import logging
 import random  # For generating OTP
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings("ignore")
 
 # Load environment variables
 load_dotenv()

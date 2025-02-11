@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - KiRA</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
-    * {
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KiRA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      * {
       margin: 0;
       padding: 0;
       box-sizing: border-abox;
       font-family: Arial, Helvetica, sans-serif;
-    }
-
-    body {
+      }
+      body {
       background: #1e2a38;
       background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
       background-size: cover;
@@ -29,9 +27,8 @@
       align-items: center;
       height: 100vh;
       flex-direction: column;
-    }
-
-    .navbar {
+      }
+      .navbar {
       width: 100%;
       background-color: rgba(36, 52, 71, 0.9); /* Transparent background */
       padding: 20px 50px; /* Increased padding for bigger navbar */
@@ -42,39 +39,33 @@
       position: fixed;
       top: 0;
       z-index: 10;
-    }
-
-    .navbar .logo {
+      }
+      .navbar .logo {
       font-size: 24px; /* Slightly bigger logo */
       font-weight: bold;
       color: #38ef7d;
       text-decoration: none;
-    }
-
-    .navbar ul {
+      }
+      .navbar ul {
       list-style: none;
       display: flex;
       gap: 20px;
-    }
-
-    .navbar ul li {
+      }
+      .navbar ul li {
       display: inline-block;
-    }
-
-    .navbar ul li a {
+      }
+      .navbar ul li a {
       text-decoration: none;
       color: white;
       padding: 10px 15px;
       border-radius: 5px;
       transition: background 0.3s ease;
-    }
-
-    .navbar ul li a:hover {
+      }
+      .navbar ul li a:hover {
       background: #38ef7d;
       color: #1e2a38;
-    }
-
-    .wrapper {
+      }
+      .wrapper {
       width: 420px; /* Increased width */
       background: rgba(36, 52, 71, 0.9); /* Transparent background */
       padding: 40px 50px; /* Increased padding */
@@ -82,20 +73,17 @@
       box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.7), -8px -8px 15px rgba(255, 255, 255, 0.1);
       margin-top: 120px; /* Adjusted margin for bigger navbar */
       text-align: center;
-    }
-
-    h1 {
+      }
+      h1 {
       margin-bottom: 20px;
       font-size: 24px;
       color: white;
-    }
-
-    .input-box {
+      }
+      .input-box {
       position: relative;
       margin-bottom: 20px;
-    }
-
-    .input-box input {
+      }
+      .input-box input {
       width: 100%;
       padding: 12px 35px 12px 15px;
       border: none;
@@ -105,46 +93,39 @@
       font-size: 14px;
       outline: none;
       transition: all 0.3s;
-    }
-
-    .input-box input:focus {
+      }
+      .input-box input:focus {
       transform: scale(1.05);
       box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.9), inset -5px -5px 10px rgba(255, 255, 255, 0.2);
-    }
-
-    .input-box i {
+      }
+      .input-box i {
       position: absolute;
       top: 50%;
       right: 15px;
       transform: translateY(-50%);
       color: white;
       font-size: 20px;
-    }
-
-    .Remember-Forgot {
+      }
+      .Remember-Forgot {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
       font-size: 14px;
-    }
-
-    .Remember-Forgot label {
+      }
+      .Remember-Forgot label {
       display: flex;
       align-items: center;
-    }
-
-    .Remember-Forgot a {
+      }
+      .Remember-Forgot a {
       text-decoration: none;
       color: #38ef7d;
       transition: color 0.3s ease;
-    }
-
-    .Remember-Forgot a:hover {
+      }
+      .Remember-Forgot a:hover {
       color: #11998e;
-    }
-
-    .btn {
+      }
+      .btn {
       width: 100%;
       padding: 12px;
       border: none;
@@ -155,119 +136,104 @@
       font-weight: bold;
       cursor: pointer;
       transition: background 0.3s, transform 0.3s;
-    }
-
-    .btn:hover {
+      }
+      .btn:hover {
       background: linear-gradient(to right, #38ef7d, #11998e);
       transform: scale(1.05);
-    }
-
-    .register-link {
+      }
+      .register-link {
       margin-top: 20px;
       font-size: 14px;
-    }
-
-    .register-link a {
+      }
+      .register-link a {
       text-decoration: none;
       color: #38ef7d;
       transition: color 0.3s ease;
-    }
-
-    .register-link a:hover {
+      }
+      .register-link a:hover {
       color: #11998e;
-    }
-
-    @keyframes fadeIn {
+      }
+      @keyframes fadeIn {
       0% {
-        opacity: 0;
+      opacity: 0;
       }
-
       100% {
-        opacity: 1;
+      opacity: 1;
       }
-    }
-
-    @keyframes fadeInUp {
+      }
+      @keyframes fadeInUp {
       0% {
-        opacity: 0;
-        transform: translateY(20px);
+      opacity: 0;
+      transform: translateY(20px);
       }
-
       100% {
-        opacity: 1;
-        transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
       }
-    }
-  </style>
-</head>
-
-<body>
-  <!-- Navigation Bar -->
-  <div class="navbar">
-    <a href="#" class="logo">KIIT Intelligent Responsive Assistant</a>
-    <ul>
-      <li><a href="{{ url_for('about') }}">About us</a></li>
-      <li><a href="{{ url_for('contact') }}">Contact</a></li>
-    </ul>
-  </div>
-
-  <!-- Login Form -->
-  <div class="wrapper">
-    <form id="login-form">
-      <h1>Login</h1>
-      <div class="input-box">
-        <input type="email" id="email" name="email" placeholder="Email" required>
-        <i class='bx bxs-envelope'></i>
-      </div>
-      <div class="input-box">
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <i class='bx bxs-lock-alt'></i>
-      </div>
-
-      <div class="Remember-Forgot">
-        <label><input type="checkbox" id="remember-me" name="remember-me"> Remember me</label>
-        <p><a href="{{ url_for('forgot_password') }}">Forgot Password</a>
-        </p>
-      </div>
-
-      <button type="submit" class="btn">Login</button>
-
-      <div class="register-link">
-        <p>Don't have an account? <a href="/register-page">Register here</a></p>
-      </div>
-    </form>
-  </div>
-
-  <script>
-    $(document).ready(function () {
-      // Handle login form submission using AJAX
-      $("#login-form").submit(function (event) {
-        event.preventDefault();
-
-        var email = $("#email").val();
-        var password = $("#password").val();
-
-        // Send the email and password as JSON data to the backend
-        $.ajax({
-          type: "POST",
-          url: "/login",  // Endpoint for login
-          contentType: "application/json",
-          data: JSON.stringify({ email: email, password: password }),
-          success: function (response) {
-            if (response.success) {
-              // Redirect to chat page if login is successful
-              window.location.href = response.redirect;
-            } else {
-              alert(response.message); // Display error message if login fails
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+      <a href="#" class="logo">KIIT Intelligent Responsive Assistant</a>
+      <ul>
+        <li><a href="{{ url_for('about') }}">About us</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      </ul>
+    </div>
+    <!-- Login Form -->
+    <div class="wrapper">
+      <form id="login-form">
+        <h1>Login</h1>
+        <div class="input-box">
+          <input type="email" id="email" name="email" placeholder="Email" required>
+          <i class='bx bxs-envelope'></i>
+        </div>
+        <div class="input-box">
+          <input type="password" id="password" name="password" placeholder="Password" required>
+          <i class='bx bxs-lock-alt'></i>
+        </div>
+        <div class="Remember-Forgot">
+          <label><input type="checkbox" id="remember-me" name="remember-me"> Remember me</label>
+          <p><a href="{{ url_for('forgot_password') }}">Forgot Password</a>
+          </p>
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <div class="register-link">
+          <p>Don't have an account? <a href="/register-page">Register here</a></p>
+        </div>
+      </form>
+    </div>
+    <script>
+      $(document).ready(function () {
+        // Handle login form submission using AJAX
+        $("#login-form").submit(function (event) {
+          event.preventDefault();
+      
+          var email = $("#email").val();
+          var password = $("#password").val();
+      
+          // Send the email and password as JSON data to the backend
+          $.ajax({
+            type: "POST",
+            url: "/login",  // Endpoint for login
+            contentType: "application/json",
+            data: JSON.stringify({ email: email, password: password }),
+            success: function (response) {
+              if (response.success) {
+                // Redirect to chat page if login is successful
+                window.location.href = response.redirect;
+              } else {
+                alert(response.message); // Display error message if login fails
+              }
+            },
+            error: function (xhr) {
+              alert("Error: " + xhr.responseJSON.message);
             }
-          },
-          error: function (xhr) {
-            alert("Error: " + xhr.responseJSON.message);
-          }
+          });
         });
       });
-    });
-  </script>
-</body>
-
+    </script>
+  </body>
 </html>

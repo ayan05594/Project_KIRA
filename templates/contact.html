@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us</title>
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* General Styles */
-    * {
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+    <style>
+      /* General Styles */
+      * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: Arial, sans-serif;
-    }
-
-    body {
-  background-color: #1e2a38;
-  background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: white;
-}
-
-    .navbar {
+      }
+      body {
+      background-color: #1e2a38;
+      background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      }
+      .navbar {
       width: 100%;
       background-color: rgba(36, 52, 71, 0.9);
       padding: 20px 50px;
@@ -35,78 +33,66 @@
       position: fixed;
       top: 0;
       z-index: 10;
-    }
-
-    .navbar .logo {
+      }
+      .navbar .logo {
       font-size: 24px;
       font-weight: bold;
       color: #38ef7d;
       text-decoration: none;
-    }
-
-    .navbar ul {
+      }
+      .navbar ul {
       list-style: none;
       display: flex;
       gap: 20px;
-    }
-
-    .navbar ul li {
+      }
+      .navbar ul li {
       display: inline-block;
-    }
-
-    .navbar ul li a {
+      }
+      .navbar ul li a {
       text-decoration: none;
       color: white;
       padding: 10px 15px;
       border-radius: 5px;
       transition: background 0.3s ease;
-    }
-
-    .navbar ul li a:hover {
+      }
+      .navbar ul li a:hover {
       background: #38ef7d;
       color: #1e2a38;
-    }
-
-    .container {
+      }
+      .container {
       max-width: 600px;
       margin: 100px auto 50px;
       background: rgba(36, 52, 71, 0.9);
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
+      }
+      h1 {
       text-align: center;
       margin-bottom: 20px;
       color: #f3f4f7;
-    }
-
-    .input-field {
+      }
+      .input-field {
       margin-bottom: 15px;
-    }
-
-    input, textarea {
+      }
+      input, textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
       font-size: 16px;
       background: rgba(255, 255, 255, 0.9);
-    }
-
-    textarea {
+      }
+      textarea {
       height: 100px;
       resize: none;
-    }
-
-    label {
+      }
+      label {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
-    }
-
-    .btn {
+      }
+      .btn {
       display: inline-block;
       width: 100%;
       padding: 10px;
@@ -118,104 +104,94 @@
       font-size: 16px;
       font-weight: bold;
       transition: background 0.3s ease;
-    }
-
-    .btn:hover {
+      }
+      .btn:hover {
       background-color: #2fc768;
-    }
-
-    .contact-icons {
+      }
+      .contact-icons {
       text-align: center;
       margin-top: 20px;
-    }
-
-    .contact-icons a {
+      }
+      .contact-icons a {
       margin: 0 10px;
       font-size: 24px;
       color: #38ef7d;
       transition: color 0.3s;
-    }
-
-    .contact-icons a:hover {
+      }
+      .contact-icons a:hover {
       color: #2fc768;
-    }
-
-    #success-message {
+      }
+      #success-message {
       display: none;
       color: #38ef7d;
       text-align: center;
       margin-top: 10px;
       font-weight: bold;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="navbar">
-    <a href="#" class="logo">KIRA</a>
-    <ul>
-      <li><a href="{{ url_for('chat') }}">Chat</a></li>
-      <li><a href="{{ url_for('about') }}">About us</a></li>
-    </ul>
-  </div>
-
-  <div class="container">
-    <h1>Contact Us</h1>
-    <form id="contactForm" action="/submit-form" method="POST">
-      {{ csrf_token }} <!-- Flask CSRF protection -->
-      <div class="input-field">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" placeholder="Your Name" required>
-      </div>
-      <div class="input-field">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="Your Email" required>
-      </div>
-      <div class="input-field">
-        <label for="message">Message</label>
-        <textarea id="message" name="message" placeholder="Your Message" required></textarea>
-      </div>
-      <button type="submit" class="btn">Send Message</button>
-    </form>
-
-    <p id="success-message">Your message has been sent successfully!</p>
-
-    <script>
-      document.getElementById("contactForm").addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        let form = document.getElementById("contactForm");
-        let formData = new FormData(form);
-        let submitButton = document.querySelector(".btn");
-        let successMessage = document.getElementById("success-message");
-
-        submitButton.disabled = true;
-
-        try {
-          let response = await fetch("/submit-form", {
-            method: "POST",
-            body: formData
-          });
-
-          if (response.ok) {
-            successMessage.style.display = "block";
-            form.reset();
-          } else {
-            alert("Failed to send message. Please try again.");
-          }
-        } catch (error) {
-          alert("An error occurred. Please try again.");
-        }
-
-        submitButton.disabled = false;
-      });
-    </script>
-
-    <div class="contact-icons">
-      <a href="https://www.facebook.com" target="_blank"><i class='bx bxl-facebook'></i></a>
-      <a href="https://www.twitter.com" target="_blank"><i class='bx bxl-twitter'></i></a>
-      <a href="https://www.instagram.com" target="_blank"><i class='bx bxl-instagram'></i></a>
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <a href="#" class="logo">KIRA</a>
+      <ul>
+        <li><a href="{{ url_for('chat') }}">Chat</a></li>
+        <li><a href="{{ url_for('about') }}">About us</a></li>
+      </ul>
     </div>
-  </div>
-</body>
+    <div class="container">
+      <h1>Contact Us</h1>
+      <form id="contactForm" action="/submit-form" method="POST">
+        {{ csrf_token }} <!-- Flask CSRF protection -->
+        <div class="input-field">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Your Name" required>
+        </div>
+        <div class="input-field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="Your Email" required>
+        </div>
+        <div class="input-field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Your Message" required></textarea>
+        </div>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
+      <p id="success-message">Your message has been sent successfully!</p>
+      <script>
+        document.getElementById("contactForm").addEventListener("submit", async function(event) {
+          event.preventDefault();
+        
+          let form = document.getElementById("contactForm");
+          let formData = new FormData(form);
+          let submitButton = document.querySelector(".btn");
+          let successMessage = document.getElementById("success-message");
+        
+          submitButton.disabled = true;
+        
+          try {
+            let response = await fetch("/submit-form", {
+              method: "POST",
+              body: formData
+            });
+        
+            if (response.ok) {
+              successMessage.style.display = "block";
+              form.reset();
+            } else {
+              alert("Failed to send message. Please try again.");
+            }
+          } catch (error) {
+            alert("An error occurred. Please try again.");
+          }
+        
+          submitButton.disabled = false;
+        });
+      </script>
+      <div class="contact-icons">
+        <a href="https://www.facebook.com" target="_blank"><i class='bx bxl-facebook'></i></a>
+        <a href="https://www.twitter.com" target="_blank"><i class='bx bxl-twitter'></i></a>
+        <a href="https://www.instagram.com" target="_blank"><i class='bx bxl-instagram'></i></a>
+      </div>
+    </div>
+  </body>
 </html>

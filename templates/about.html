@@ -1,30 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Us</title>
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    * {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: Arial, sans-serif;
-    }
-
-    body {
+      }
+      body {
       background-color: #1e2a38;
       background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       color: white;
-    }
-
-    .navbar {
+      }
+      .navbar {
       width: 100%;
       background-color: rgba(36, 52, 71, 0.9);
       padding: 20px 50px;
@@ -35,39 +32,33 @@
       position: fixed;
       top: 0;
       z-index: 10;
-    }
-
-    .navbar .logo {
+      }
+      .navbar .logo {
       font-size: 24px;
       font-weight: bold;
       color: #38ef7d;
       text-decoration: none;
-    }
-
-    .navbar ul {
+      }
+      .navbar ul {
       list-style: none;
       display: flex;
       gap: 20px;
-    }
-
-    .navbar ul li {
+      }
+      .navbar ul li {
       display: inline-block;
-    }
-
-    .navbar ul li a {
+      }
+      .navbar ul li a {
       text-decoration: none;
       color: white;
       padding: 10px 15px;
       border-radius: 5px;
       transition: background 0.3s ease;
-    }
-
-    .navbar ul li a:hover {
+      }
+      .navbar ul li a:hover {
       background: #38ef7d;
       color: #1e2a38;
-    }
-
-    .about-container {
+      }
+      .about-container {
       max-width: 1100px; /* Increased from 900px to 1100px */
       margin: 100px auto 50px; /* Leave space for the navbar */
       padding: 30px; /* Increased padding for a larger box */
@@ -75,109 +66,91 @@
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
-    }
-
-    .about-content img {
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-
-    .about-text {
+      }
+      .about-content img {
+      border-radius: 50%;
+      object-fit: cover;
+      }
+      .about-text {
       text-align: justify;
       font-size: 16px;
       line-height: 1.6;
       margin-top: 15px;
-    }
-
-    .team-section {
+      }
+      .team-section {
       margin-top: 30px;
-    }
-
-    .team-title {
+      }
+      .team-title {
       margin-bottom: 20px;
       color: white;
-    }
-
-    .team-members {
+      }
+      .team-members {
       display: flex;
       gap: 20px;
       justify-content: center;
       flex-wrap: nowrap; /* Force all pictures to stay on one line */
       overflow-x: auto;  /* Allows horizontal scrolling on smaller screens */
       padding-bottom: 10px; /* Optional: adds a little space at the bottom */
-      
-    }
-
-    .team-member {
+      }
+      .team-member {
       text-align: center;
       width: 150px;
       flex-shrink: 0; /* Prevent the boxes from shrinking */
-    }
-
-    .team-member img {
+      }
+      .team-member img {
       width: 150px;
       height: 150px;
       border-radius: 50%;
       margin-bottom: 10px;
-    }
-
-    #e {
+      }
+      #e {
       text-align: center;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="navbar">
-    <a href="#" class="logo">KIRA</a>
-    <ul>
-      <li><a href="{{ url_for('chat') }}">Chat</a></li>
-      <li><a href="{{ url_for('contact') }}">Contact</a></li>
-
-    </ul>
-  </div>
-
-  <div class="about-container">
-    <h1>About Us</h1>
-    <div class="about-content">
-      <img src="static/images/bot_logo.jpg" alt="About Us Image" height="200px" width="200px">
-      <p class="about-text" id="e">Welcome to KIRA! The KIIT Intelligent Responsive Assistant</p>
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <a href="#" class="logo">KIRA</a>
+      <ul>
+        <li><a href="{{ url_for('chat') }}">Chat</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      </ul>
     </div>
-
-    <div class="team-section">
-      <h2 class="team-title">Meet Our Team</h2>
-      <div class="team-members">
-        <div class="team-member">
-          <img src="static/images/debasis.jpg" alt="Team Member 1" height="200px" width="200px">
-          <p>Debasis Sikder</p>
-        </div>
-        <div class="team-member">
-          <img src="static/images/soudip.jpg" alt="Team Member 2" height="200px" width="200px">
-          <p>Soudip Dutta</p>
-        </div>
-        <div class="team-member">
-          <img src="static/images/debx.jpg " alt="Team Member 3" height="200px" width="200px">
-          <p>Debargha Dutta</p>
-        </div>
-        <div class="team-member">
-          <img src="static/images/srijo.jpg" alt="Team Member 4" height="200px" width="200px">
-          <p>Srijani Karmakar</p>
-        </div>
-        <div class="team-member">
-          <img src="static/images/modak.jpg" alt="Team Member 5" height="200px" width="200px">
-          <p>Shubhadip Modok</p>
-        </div>
-        <div class="team-member">
-          <img src="static/images/ak.jpg" alt="Team Member 6" height="500px" width="500px">
-          <p>Ayan Kundu</p>
+    <div class="about-container">
+      <h1>About Us</h1>
+      <div class="about-content">
+        <img src="static/images/bot_logo.jpg" alt="About Us Image" height="200px" width="200px">
+        <p class="about-text" id="e">Welcome to KIRA! The KIIT Intelligent Responsive Assistant</p>
+      </div>
+      <div class="team-section">
+        <h2 class="team-title">Meet Our Team</h2>
+        <div class="team-members">
+          <div class="team-member">
+            <img src="static/images/debasis.jpg" alt="Team Member 1" height="200px" width="200px">
+            <p>Debasis Sikder</p>
+          </div>
+          <div class="team-member">
+            <img src="static/images/soudip.jpg" alt="Team Member 2" height="200px" width="200px">
+            <p>Soudip Dutta</p>
+          </div>
+          <div class="team-member">
+            <img src="static/images/debx.jpg " alt="Team Member 3" height="200px" width="200px">
+            <p>Debargha Dutta</p>
+          </div>
+          <div class="team-member">
+            <img src="static/images/srijo.jpg" alt="Team Member 4" height="200px" width="200px">
+            <p>Srijani Karmakar</p>
+          </div>
+          <div class="team-member">
+            <img src="static/images/modak.jpg" alt="Team Member 5" height="200px" width="200px">
+            <p>Shubhadip Modok</p>
+          </div>
+          <div class="team-member">
+            <img src="static/images/ak.jpg" alt="Team Member 6" height="500px" width="500px">
+            <p>Ayan Kundu</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>
-
-
-
