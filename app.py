@@ -224,16 +224,28 @@ def ask():
         if not question:
             return jsonify({"success": False, "message": "Question is required"}), 400
 
-        # Get the logged-in user's email
         username = session["user"]
 
-        # Store the question in MongoDB under the "questions" collection
-        query_data = {
-            "username": username,  
-            "qns": question,  
-            "timestamp": datetime.utcnow()  
-        }
-        mongo.db.questions.insert_one(query_data)  # Insert into MongoDB
+        # Fetch user's existing questions
+        user_query_doc = mongo.db.questions.find_one({"username": username})
+
+        if user_query_doc:
+            # Extract existing questions (ignoring case)
+            existing_questions = {q["qns"].lower() for q in user_query_doc.get("queries", [])}
+
+            if question.lower() not in existing_questions:
+                # Append only if the question is new
+                mongo.db.questions.update_one(
+                    {"username": username},
+                    {"$push": {"queries": {"qns": question, "timestamp": datetime.utcnow()}}}
+                )
+        else:
+            # If no previous queries exist, create a new document
+            query_data = {
+                "username": username,
+                "queries": [{"qns": question, "timestamp": datetime.utcnow()}]
+            }
+            mongo.db.questions.insert_one(query_data)
 
         # Simulated response (Replace this with chatbot logic)
         answer = f"I received your question: {question}"
@@ -274,19 +286,27 @@ def get_queries():
         return jsonify({"success": False, "message": "Please log in to view your queries."}), 401
     try:
         username = session["user"]
-        queries = list(mongo.db.questions.find({"username": username}).sort("timestamp", -1))
 
-        # Convert MongoDB ObjectId to string and format timestamps
+        # Fetch only queries belonging to the logged-in user
+        user_query_doc = mongo.db.questions.find_one({"username": username})
+
+        if not user_query_doc:
+            return jsonify({"success": True, "queries": []}), 200
+
+        # Extract queries specific to the logged-in user
+        queries = user_query_doc.get("queries", [])
+
+        # Convert timestamps to a readable format
         for query in queries:
-            query["_id"] = str(query["_id"])
             if "timestamp" in query:
-                query["timestamp"] = query["timestamp"].strftime("%Y-%m-%d %H:%M:%S")  # Readable format
+                query["timestamp"] = query["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
 
         return jsonify({"success": True, "queries": queries}), 200
 
     except Exception as e:
         logger.error(f"Error retrieving queries: {e}")
         return jsonify({"success": False, "message": "Something went wrong. Please try again later."}), 500
+
 
 # Serve chat.html (Chat Page)
 @app.route("/chat")

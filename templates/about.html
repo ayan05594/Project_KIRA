@@ -21,6 +21,7 @@
       background-repeat: no-repeat;
       color: white;
       }
+      
       .navbar {
       width: 100%;
       background-color: rgba(36, 52, 71, 0.9);
@@ -106,6 +107,24 @@
       #e {
       text-align: center;
       }
+
+      @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.navbar,
+.about-container,
+.team-section {
+  animation: fadeIn 1s ease-in-out;
+}
+
     </style>
   </head>
   <body>
