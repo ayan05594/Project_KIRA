@@ -420,6 +420,26 @@ def verify_reset_otp():
     except Exception as e:
         logger.error(f"Error during OTP verification: {e}")
         return jsonify({"success": False, "message": "An error occurred"}), 500
+    
+@app.route('/profile')
+def profile():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    user = mongo.db.users.find_one({"email": session['user']})
+    if user:
+        return render_template('profile.html')
+    return redirect(url_for('index'))
+
+@app.route('/get-profile')
+def get_profile():
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+    
+    user = mongo.db.users.find_one({"email": session['user']}, {'_id': 0, 'password': 0})
+    if user:
+        return jsonify({"success": True, "user": user})
+    return jsonify({"success": False}), 404
 
 
 # Logout
@@ -429,4 +449,4 @@ def logout():
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - KiRA</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #1e2a38;
+            background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: rgba(36, 52, 71, 0.9);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            color: #38ef7d;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: #38ef7d;
+            color: #1e2a38;
+        }
+
+        .profile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 100px 20px 20px;
+        }
+
+        .profile-card {
+            background: rgba(36, 52, 71, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-details {
+            margin-bottom: 30px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .detail-item i {
+            font-size: 20px;
+            margin-right: 15px;
+            color: #38ef7d;
+        }
+
+        .detail-content h3 {
+            color: #38ef7d;
+            margin-bottom: 5px;
+        }
+
+        .edit-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+        }
+
+        .edit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .profile-card {
+                padding: 25px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <i class='bx bx-arrow-back back-btn' onclick="window.location.href='/chat'"></i>
+        <div class="nav-links">
+            <a href="{{ url_for('about') }}">About Us</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-pic">
+                    <img src="static/images/profile_pic.jpg" alt="Profile Picture">
+                </div>
+                <h1>Your Profile</h1>
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <i class='bx bx-user'></i>
+                    <div class="detail-content">
+                        <h3>Full Name</h3>
+                        <p id="profile-name">John Doe</p>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <i class='bx bx-envelope'></i>
+                    <div class="detail-content">
+                        <h3>Email Address</h3>
+                        <p id="profile-email">john.doe@example.com</p>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <i class='bx bx-id-card'></i>
+                    <div class="detail-content">
+                        <h3>Roll Number</h3>
+                        <p id="profile-roll">123456</p>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <i class='bx bx-shield'></i>
+                    <div class="detail-content">
+                        <h3>Account Status</h3>
+                        <p>Verified</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="#" class="edit-btn">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch user data from backend
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/get-profile')
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('profile-name').textContent = data.user.name;
+                        document.getElementById('profile-email').textContent = data.user.email;
+                        document.getElementById('profile-roll').textContent = data.user.roll_number;
+                    }
+                })
+                .catch(error => console.error('Error fetching profile data:', error));
+        });
+    </script>
+</body>
+</html>

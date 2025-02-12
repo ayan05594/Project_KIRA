@@ -209,7 +209,7 @@
     <div class="sidebar">
       <div class="profile">
           <div class="profile-pic"></div>
-          <span>Your Profile</span>
+          <a href="/profile" style="color: white; text-decoration: none;">Your Profile</a>
       </div>
       <ul class="history">
           <li class="history-item">Yesterday's Chat</li>
@@ -240,6 +240,13 @@
     </div>
     <!-- JavaScript for Interactivity -->
     <script>
+      document.getElementById("user-input").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Prevent default behavior (e.g., new line in textarea)
+        sendMessage(); // Trigger send function
+    }
+});
+
       async function loadQuestions() {
     try {
         const response = await fetch("/get-queries");
@@ -294,6 +301,13 @@ async function sendMessage() {
     userInput.value = "";
 
     try {
+        // Show typing indicator
+        const typingIndicator = document.createElement("div");
+        typingIndicator.classList.add("typing-indicator", "active");
+        typingIndicator.textContent = "Kira is typing...";
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
         // Send request to Flask backend
         const response = await fetch("/ask", {
             method: "POST",
@@ -304,24 +318,40 @@ async function sendMessage() {
         const data = await response.json();
         let answer = data.answer || "Sorry, I couldn't find an answer.";
 
-        // Add bot response to chat
+        // Remove typing indicator
+        chatMessages.removeChild(typingIndicator);
+
+        // Add bot response to chat with typing effect
         const botMessageDiv = document.createElement("div");
         botMessageDiv.classList.add("message", "bot");
         botMessageDiv.innerHTML = `
             <img class="profile-pic" src="static/images/msg_logo.jpg" alt="Bot Logo">
-            <div class="message-content">${answer}</div>
+            <div class="message-content"></div>
         `;
         chatMessages.appendChild(botMessageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // ✅ Update UI with recent question **without refreshing**
+        // Simulate typing effect
+        const messageContent = botMessageDiv.querySelector(".message-content");
+        let index = 0;
+        const typingInterval = setInterval(() => {
+            if (index < answer.length) {
+                messageContent.textContent += answer.charAt(index);
+                index++;
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+            } else {
+                clearInterval(typingInterval);
+            }
+        }, 50); // Adjust typing speed (milliseconds per character)
+
+        // Update UI with recent question
         const newQuestionItem = document.createElement("div");
         newQuestionItem.classList.add("history-item");
         newQuestionItem.textContent = question;
         newQuestionItem.addEventListener("click", () => sendQuestionAgain(question));
-        recentQuestionsDiv.prepend(newQuestionItem); // Add question to top
+        recentQuestionsDiv.prepend(newQuestionItem);
 
-        // ✅ Fetch updated questions from the database (optional, ensures consistency)
+        // Fetch updated questions from the database
         await loadQuestions();
 
     } catch (error) {
