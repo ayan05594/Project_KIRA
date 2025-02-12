@@ -1,7 +1,10 @@
 Flask
 Flask-PyMongo
 Flask-Bcrypt
-Flask-Cors
+Flask-CORS
 Flask-Mail
 python-dotenv
+pymongo
+bcrypt
+gunicorn
 requests
