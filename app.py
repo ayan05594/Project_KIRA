@@ -11,7 +11,14 @@ from datetime import datetime, timedelta
 import warnings
 import requests  
 warnings.filterwarnings("ignore")
+
 load_dotenv()
+# Add to your Flask app.py (backend)
+from flask_wtf.csrf import CSRFProtect
+import re
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -31,7 +38,17 @@ app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USERNAME"] = os.getenv("EMAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.getenv("EMAIL_PASSWORD")
+app.config['ADMIN_EMAIL'] = os.getenv('ADMIN_EMAIL')
 mail = Mail(app)
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
+
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,  # Rate limit by IP address
+    default_limits=["5 per minute"]  # Default rate limit
+)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -42,21 +59,25 @@ OLLAMA_API_URL = "http://localhost:11434/api/generate"  # Ollama API endpoint
 
 # Serve static files
 @app.route("/static/<path:filename>")
+@csrf.exempt
 def static_files(filename):
     return send_from_directory("static", filename)
 
 # Serve index.html (Login Page)
 @app.route("/")
+@csrf.exempt
 def index():
     return render_template("loginpage.html")
 
 # Serve registration page
 @app.route("/register-page")
+@csrf.exempt
 def register_page():
     return render_template("registrationpage.html")
 
 # User Registration Endpoint
 @app.route("/register", methods=["POST"])
+@csrf.exempt
 def register():
     try:
         data = request.json
@@ -95,6 +116,7 @@ def register():
 
 # Send OTP Endpoint
 @app.route("/send-otp", methods=["POST"])
+@csrf.exempt
 def send_otp():
     try:
         data = request.json
@@ -128,6 +150,7 @@ def send_otp():
 
 # Verify OTP Endpoint
 @app.route("/verify-otp", methods=["POST"])
+@csrf.exempt
 def verify_otp():
     try:
         data = request.json
@@ -173,6 +196,7 @@ def verify_otp():
 @app.route("/login", methods=["POST"])
 def login():
     try:
+        # CSRF token is automatically validated by Flask-WTF
         data = request.json
         logger.debug(f"Received login data: {data}")
 
@@ -198,6 +222,7 @@ def login():
 
 # Ask Endpoint (Updated to use Ollama)
 @app.route("/ask", methods=["POST"])
+@csrf.exempt
 def ask():
     if "user" not in session:
         return jsonify({"success": False, "message": "User not logged in"}), 401
@@ -236,8 +261,10 @@ def ask():
 
         # Extract the generated response
         generated_text = response.json().get("response", "No response generated")
+        # Ensure proper formatting
+        formatted_text = generated_text.replace("*", "").replace("\n", " ") 
 
-        return jsonify({"success": True, "answer": generated_text}), 200
+        return jsonify({"success": True, "answer": formatted_text}), 200
 
     except Exception as e:
         logger.error(f"Error during question processing: {e}")
@@ -245,6 +272,7 @@ def ask():
     
 
 @app.route("/get-queries", methods=["GET"])
+@csrf.exempt
 def get_queries():
     if "user" not in session:
         return jsonify({"success": False, "message": "User not logged in"}), 401
@@ -282,6 +310,7 @@ def get_queries():
     
 
 @app.route("/recent-questions", methods=["GET"])
+@csrf.exempt
 def recent_questions():
     if "user" not in session:
         return jsonify({"success": False, "message": "User not logged in"}), 401
@@ -313,6 +342,7 @@ def recent_questions():
 
 # Serve chat.html (Chat Page)
 @app.route("/chat")
+@csrf.exempt
 def chat():
     if "user" in session:
         return render_template("chat.html")
@@ -320,21 +350,93 @@ def chat():
 
 # Serve about.html (About Page)
 @app.route("/about")
+@csrf.exempt
 def about():
     return render_template("about.html")
 
 # Serve contact.html (Contact Page)
 @app.route("/contact")
+@csrf.exempt
 def contact():
     return render_template("contact.html")
 
+
+
+@app.route('/submit-form', methods=['POST'])
+@limiter.limit("5 per minute")
+def submit_contact_form():
+    try:
+        # Get form data
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        message = request.form.get('message', '').strip()
+
+        # Validate inputs
+        if not all([name, email, message]):
+            return jsonify({"success": False, "message": "All fields are required"}), 400
+
+        # Validate email format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
+
+        # Validate email domain (@kiit.ac.in)
+        if not email.endswith('@kiit.ac.in'):
+            return jsonify({"success": False, "message": "Please use your KIIT University email ID (@kiit.ac.in)"}), 400
+
+        # Validate message length
+        if len(message) > 1000:
+            return jsonify({"success": False, "message": "Message too long (max 1000 characters)"}), 400
+
+        # Store in MongoDB
+        submission = {
+            "name": name,
+            "email": email,
+            "message": message,
+            "timestamp": datetime.utcnow(),
+            "ip_address": request.remote_addr
+        }
+        mongo.db.contact_submissions.insert_one(submission)
+
+        # Send email notification (optional)
+        send_email_notification(name, email, message)
+
+        return jsonify({"success": True, "message": "Your message has been sent successfully!"}), 200
+
+    except Exception as e:
+        logger.error(f"Error processing contact form: {e}")
+        return jsonify({"success": False, "message": "An error occurred while processing your request"}), 500
+
+def send_email_notification(name, email, message):
+    """
+    Send an email notification to the admin about the new contact form submission.
+    """
+    try:
+        msg = Message(
+            subject=f"KIRA Support Problem from {name}",
+            sender=app.config['MAIL_USERNAME'],
+            recipients=[app.config['ADMIN_EMAIL']],
+            body=f"""
+            Name: {name}
+            Email: {email}
+            Message:
+            {message}
+            """
+        )
+        mail.send(msg)
+    except Exception as e:
+        logger.error(f"Error sending email notification: {e}")
+
+
+
 # Serve forgotpassword.html (Forgot Password Page)
 @app.route("/forgotpassword")
+@csrf.exempt
 def forgot_password():
     return render_template("forgotpassword.html")
 
 # Forgot Password Endpoint
 @app.route("/forgot-password", methods=["POST"])
+@csrf.exempt
 def forgot_password_submit():
     try:
         data = request.json
@@ -368,6 +470,7 @@ def forgot_password_submit():
 
 # Reset Password Endpoint
 @app.route("/reset-password", methods=["POST"])
+@csrf.exempt
 def reset_password():
     try:
         data = request.json
@@ -388,6 +491,7 @@ def reset_password():
 
 # Verify OTP for Password Reset
 @app.route("/verify-reset-otp", methods=["POST"])
+@csrf.exempt
 def verify_reset_otp():
     try:
         data = request.json
@@ -417,6 +521,7 @@ def verify_reset_otp():
 
 # Profile Page
 @app.route('/profile')
+@csrf.exempt
 def profile():
     if 'user' not in session:
         return redirect(url_for('index'))
@@ -428,6 +533,7 @@ def profile():
 
 # Get Profile Data
 @app.route('/get-profile')
+@csrf.exempt
 def get_profile():
     if 'user' not in session:
         return jsonify({"success": False}), 401
@@ -439,6 +545,7 @@ def get_profile():
 
 # Logout
 @app.route("/logout")
+@csrf.exempt
 def logout():
     session.pop("user", None)
     return redirect(url_for("index"))
