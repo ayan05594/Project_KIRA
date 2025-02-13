@@ -1,378 +1,449 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Interface</title>
     <style>
-      * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-      body {
-      display: flex;
-      height: 100vh;
-      background-color: #f0f0f0;
-      }
-      /* Navigation Bar */
-      .navbar {
-      width: 100%;
-      background-color: rgba(36, 52, 71, 0.9);
-      padding: 20px 50px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      position: fixed;
-      top: 0;
-      z-index: 10;
-      }
-      .navbar .logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: #38ef7d;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      }
-      .navbar .logo img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      }
-      .navbar ul {
-      list-style: none;
-      display: flex;
-      gap: 20px;
-      }
-      .navbar ul li {
-      display: inline-block;
-      }
-      .navbar ul li a {
-      text-decoration: none;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      transition: background 0.3s ease;
-      }
-      .navbar ul li a:hover {
-      background: #38ef7d;
-      color: #1e2a38;
-      }
-      .logout-btn {
-      background-color: #ff4444;
-      padding: 8px 15px;
-      border-radius: 5px;
-      transition: background 0.3s ease;
-      }
-      .logout-btn:hover {
-      background-color: #cc0000;
-      }
-      /* Sidebar Styles */
-      .sidebar {
-      width: 260px;
-      background-color: #202123;
-      padding: 20px;
-      color: white;
-      overflow-y: auto;
-      margin-top: 80px;
-      }
-      .profile {
-      display: flex;
-      align-items: center;
-      margin-bottom: 30px;
-      }
-      .profile-pic {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-      background-color: #fff;
-      }
-      .history {
-      list-style: none;
-      }
-      .history-item {
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      }
-      .history-item:hover {
-      background-color: #343541;
-      }
-      /* Main Chat Area */
-      .main-chat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background-color: #343541;
-      margin-top: 80px;
-      }
-      .chat-header {
-      padding: 20px;
-      background-color: #40414f;
-      display: flex;
-      align-items: center;
-      color: white;
-      }
-      .chat-messages {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      }
-      .message {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-      color: white;
-      width: 100%;
-      padding: 0 20px;
-      box-sizing: border-box;
-      opacity: 0;
-      animation: fadeIn 0.5s forwards;
-      }
-      .message.user {
-      justify-content: flex-end;
-      }
-      .message-content {
-      max-width: 70%;
-      padding: 15px 20px;
-      border-radius: 7px;
-      line-height: 1.5;
-      }
-      .message.bot .message-content {
-      background-color: #40414f;
-      }
-      .message.user .message-content {
-      background-color: #19c37d;
-      }
-      .chat-input {
-      padding: 20px;
-      background-color: #40414f;
-      display: flex;
-      gap: 10px;
-      }
-      input[type='text'] {
-      flex: 1;
-      padding: 15px;
-      border: none;
-      border-radius: 5px;
-      background-color: #40414f;
-      color: white;
-      font-size: 16px;
-      border: 1px solid #565869;
-      }
-      button {
-      padding: 15px 30px;
-      background-color: #19c37d;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      }
-      button:hover {
-      background-color: #16a46d;
-      }
-      @keyframes fadeIn {
-      to {
-      opacity: 1;
-      }
-      }
-      /* Responsive Design */
-      @media (max-width: 768px) {
-      .sidebar {
-      display: none;
-      }
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            width: 100%;
+            background-color: rgba(36, 52, 71, 0.9);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            z-index: 10;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #38ef7d;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar ul li {
+            display: inline-block;
+        }
+
+        .navbar ul li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .navbar ul li a:hover {
+            background: #38ef7d;
+            color: #1e2a38;
+        }
+
+        .logout-btn {
+            background-color: #ff4444;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #cc0000;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: #202123;
+            padding: 20px;
+            color: white;
+            overflow-y: auto;
+            margin-top: 80px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #fff;
+        }
+
+        .history-section {
+            margin-top: 20px;
+        }
+
+        .history-section h4 {
+            margin-bottom: 10px;
+        }
+
+        #question-history {
+            list-style: none;
+        }
+
+        #question-history .history-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #question-history .history-item:hover {
+            background-color: #343541;
+        }
+
+        /* Main Chat Area */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #343541;
+            margin-top: 80px;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background-color: #40414f;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            color: white;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 7px;
+            line-height: 1.5;
+        }
+
+        .message.bot .message-content {
+            background-color: #40414f;
+        }
+
+        .message.user .message-content {
+            background-color: #19c37d;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background-color: #40414f;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type='text'] {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #40414f;
+            color: white;
+            font-size: 16px;
+            border: 1px solid #565869;
+        }
+
+        button {
+            padding: 15px 30px;
+            background-color: #19c37d;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #16a46d;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            background-color: #40414f;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 7px;
+            font-style: italic;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <!-- Navigation Bar -->
     <div class="navbar">
-      <a href="#" class="logo">
-      <img src="static/images/bot_logo.jpg" />
-      KiRA
-      </a>
-      <ul>
-        <li><a href="{{ url_for('about') }}">About us</a></li>
-        <li><a href="{{ url_for('contact') }}">Contact</a></li>
-        <li><a href="#" class="logout-btn" onclick="logout()">Logout</a></li>
-      </ul>
+        <a href="#" class="logo">
+            <img src="static/images/bot_logo.jpg" alt="Logo" />
+            KiRA
+        </a>
+        <ul>
+            <li><a href="{{ url_for('about') }}">About us</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            <li><a href="#" class="logout-btn" onclick="logout()">Logout</a></li>
+        </ul>
     </div>
+
     <!-- Sidebar -->
     <div class="sidebar">
-      <div class="profile">
-          <div class="profile-pic"></div>
-          <a href="/profile" style="color: white; text-decoration: none;">Your Profile</a>
-      </div>
-      <ul class="history">
-          <li class="history-item">Yesterday's Chat</li>
-          <li class="history-item">Python Help</li>
-          <li><strong>Recent Questions</strong></li>
-          <div id="question-history"></div>
-      </ul>
-  </div>
+        <div class="profile">
+            <div class="profile-pic"></div>
+            <a href="/profile" style="color: white; text-decoration: none;">Your Profile</a>
+        </div>
+        <div class="history-section">
+            <h4>Recent Questions</h4>
+            <ul id="question-history">
+                <!-- Dynamic questions will be inserted here -->
+            </ul>
+        </div>
+    </div>
+
     <!-- Main Chat Area -->
     <div class="main-chat">
-      <div class="chat-header">
-        <img class="profile-pic" src="static/images/bot_logo.jpg" alt="Bot Logo" style="margin-right: 10px;" />
-        <span>KiRA</span>
-      </div>
-      <div class="chat-messages" id="chat-messages">
-        <!-- Initial static message (optional) -->
-        <div class="message bot">
-          <img class="profile-pic" src="static/images/msg_logo.jpg" alt="Bot Logo" />
-          <div class="message-content">
-            Hello! How can I help you today?
-          </div>
+        <div class="chat-header">
+            <img class="profile-pic" src="static/images/bot_logo.jpg" alt="Bot Logo" />
+            <span>KiRA</span>
         </div>
-      </div>
-      <div class="chat-input">
-        <input type="text" id="user-input" placeholder="Type your message here..." />
-        <button onclick="sendMessage()">Send</button>
-      </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <!-- Initial bot message -->
+            <div class="message bot">
+                <img class="profile-pic" src="static/images/msg_logo.jpg" alt="Bot Logo" />
+                <div class="message-content">
+                    Hello! How can I help you today?
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message here..." 
+                   onkeypress="if(event.key === 'Enter') sendMessage()" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
+
     <!-- JavaScript for Interactivity -->
     <script>
-      document.getElementById("user-input").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        event.preventDefault(); // Prevent default behavior (e.g., new line in textarea)
-        sendMessage(); // Trigger send function
-    }
-});
-
-      async function loadQuestions() {
-    try {
-        const response = await fetch("/get-queries");
-        const data = await response.json();
-        
-        if (!data.success) {
-            console.error("Failed to load questions:", data.message);
-            return;
-        }
-        
-        const recentQuestionsDiv = document.getElementById("question-history");
-        recentQuestionsDiv.innerHTML = ""; // Clear existing questions
-        
-        data.queries.forEach((query) => {
-            const listItem = document.createElement("div");
-            listItem.classList.add("history-item");
-            listItem.textContent = query.qns; // Show question text
-        
-            // Make the question clickable to resend it in chat
-            listItem.addEventListener("click", () => sendQuestionAgain(query.qns));
-        
-            recentQuestionsDiv.appendChild(listItem);
-        });
-    } catch (error) {
-        console.error("Error fetching questions:", error);
-    }
-}
-
-// Load questions when the page loads
-window.onload = loadQuestions;
-      
-      
-async function sendMessage() {
-    const userInput = document.getElementById("user-input");
-    const chatMessages = document.getElementById("chat-messages");
-    const recentQuestionsDiv = document.getElementById("question-history");
-
-    let question = userInput.value.trim();
-    if (question === "") return;
-
-    // Add user message to chat
-    const userMessageDiv = document.createElement("div");
-    userMessageDiv.classList.add("message", "user");
-    userMessageDiv.innerHTML = `
-        <div class="profile-pic"></div>
-        <div class="message-content">${question}</div>
-    `;
-    chatMessages.appendChild(userMessageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // Clear input field
-    userInput.value = "";
-
-    try {
-        // Show typing indicator
-        const typingIndicator = document.createElement("div");
-        typingIndicator.classList.add("typing-indicator", "active");
-        typingIndicator.textContent = "Kira is typing...";
-        chatMessages.appendChild(typingIndicator);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Send request to Flask backend
-        const response = await fetch("/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question: question }),
-        });
-
-        const data = await response.json();
-        let answer = data.answer || "Sorry, I couldn't find an answer.";
-
-        // Remove typing indicator
-        chatMessages.removeChild(typingIndicator);
-
-        // Add bot response to chat with typing effect
-        const botMessageDiv = document.createElement("div");
-        botMessageDiv.classList.add("message", "bot");
-        botMessageDiv.innerHTML = `
-            <img class="profile-pic" src="static/images/msg_logo.jpg" alt="Bot Logo">
-            <div class="message-content"></div>
-        `;
-        chatMessages.appendChild(botMessageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Simulate typing effect
-        const messageContent = botMessageDiv.querySelector(".message-content");
-        let index = 0;
-        const typingInterval = setInterval(() => {
-            if (index < answer.length) {
-                messageContent.textContent += answer.charAt(index);
-                index++;
-                chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
-            } else {
-                clearInterval(typingInterval);
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
             }
-        }, 50); // Adjust typing speed (milliseconds per character)
-
-        // Update UI with recent question
-        const newQuestionItem = document.createElement("div");
-        newQuestionItem.classList.add("history-item");
-        newQuestionItem.textContent = question;
-        newQuestionItem.addEventListener("click", () => sendQuestionAgain(question));
-        recentQuestionsDiv.prepend(newQuestionItem);
-
-        // Fetch updated questions from the database
-        await loadQuestions();
-
-    } catch (error) {
-        console.error("Error:", error);
-    }
-}
-
-      
-      function sendQuestionAgain(question) {
-      document.getElementById("user-input").value = question; // Prefill input box
-      sendMessage(); // Resend the question
-      }
-      
-      // Logout function
-      function logout() {
-        fetch("/logout", {
-          method: "GET"
-        }).then(() => {
-          window.location.href = "/"; // Redirect to login page
         });
-      }
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch("/get-queries");
+                const data = await response.json();
+
+                if (!data.success) {
+                    console.error("Failed to load questions:", data.message);
+                    return;
+                }
+
+                const recentQuestionsDiv = document.getElementById("question-history");
+                recentQuestionsDiv.innerHTML = ""; // Clear existing questions
+
+                const uniqueQuestions = new Set(); // To avoid duplicates
+                data.queries.forEach((query) => {
+                    if (!uniqueQuestions.has(query.qns.toLowerCase())) {
+                        uniqueQuestions.add(query.qns.toLowerCase());
+
+                        const listItem = document.createElement("li");
+                        listItem.classList.add("history-item");
+                        listItem.textContent = query.qns;
+
+                        // Make the question clickable to resend it in chat
+                        listItem.addEventListener("click", () => sendQuestionAgain(query.qns));
+
+                        recentQuestionsDiv.prepend(listItem); // Add new questions at the top
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching questions:", error);
+            }
+        }
+
+        // Load questions when the page loads
+        window.onload = loadQuestions;
+
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input");
+            const chatMessages = document.getElementById("chat-messages");
+            const recentQuestionsDiv = document.getElementById("question-history");
+
+            let question = userInput.value.trim();
+            if (question === "") return;
+
+            // Add user message to chat
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.classList.add("message", "user");
+            userMessageDiv.innerHTML = `
+                <div class="profile-pic"></div>
+                <div class="message-content">${question}</div>
+            `;
+            chatMessages.appendChild(userMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Clear input field
+            userInput.value = "";
+
+            try {
+                // Create bot message container for typing indicator
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.classList.add("message", "bot");
+
+                // Add bot logo
+                const botAvatar = document.createElement("img");
+                botAvatar.src = "static/images/msg_logo.jpg"; // Ensure this path is correct
+                botAvatar.alt = "Bot Logo";
+                botAvatar.classList.add("profile-pic");
+
+                // Create typing indicator
+                const typingIndicator = document.createElement("div");
+                typingIndicator.classList.add("message-content", "typing-indicator");
+                typingIndicator.textContent = "Kira is typing...";
+
+                // Append elements
+                botMessageDiv.appendChild(botAvatar);
+                botMessageDiv.appendChild(typingIndicator);
+                chatMessages.appendChild(botMessageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Send request to Flask backend
+                const response = await fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: question }),
+                });
+
+                const data = await response.json();
+                let answer = data.answer || "Sorry, I couldn't find an answer.";
+
+                // Remove typing indicator
+                botMessageDiv.removeChild(typingIndicator);
+
+                // Create message content div
+                const messageContent = document.createElement("div");
+                messageContent.classList.add("message-content");
+                botMessageDiv.appendChild(messageContent);
+
+                // Simulate typing effect
+                let index = 0;
+                const typingInterval = setInterval(() => {
+                    if (index < answer.length) {
+                        messageContent.textContent += answer.charAt(index);
+                        index++;
+                        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+                    } else {
+                        clearInterval(typingInterval);
+                    }
+                }, 50); // Adjust typing speed
+
+                // Update UI with recent question
+                const newQuestionItem = document.createElement("li");
+                newQuestionItem.classList.add("history-item");
+                newQuestionItem.textContent = question;
+                newQuestionItem.addEventListener("click", () => sendQuestionAgain(question));
+                recentQuestionsDiv.prepend(newQuestionItem); // Add new question at the top
+
+                // Fetch updated questions from the database
+                await loadQuestions();
+
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        function sendQuestionAgain(question) {
+            document.getElementById("user-input").value = question; // Prefill input box
+            sendMessage(); // Resend the question
+        }
+
+        // Logout function
+        function logout() {
+            fetch("/logout", {
+                method: "GET"
+            }).then(() => {
+                window.location.href = "/"; // Redirect to login page
+            });
+        }
     </script>
-  </body>
+</body>
 </html>

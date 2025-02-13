@@ -2,16 +2,15 @@ from flask import Flask, request, jsonify, render_template, session, redirect, u
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from flask_mail import Mail, Message  # Added Flask-Mail for sending emails
+from flask_mail import Mail, Message
 import os
 import logging
-import random  # For generating OTP
+import random
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import warnings
+import requests  
 warnings.filterwarnings("ignore")
-
-# Load environment variables
 load_dotenv()
 
 # Initialize Flask app
@@ -23,22 +22,23 @@ app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017/kira")
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
-# Ensure indexes for optimized queries
 mongo.db.users.create_index("email", unique=True)
 mongo.db.questions.create_index("username")
 
-
 # Configure Flask-Mail
-app.config["MAIL_SERVER"] = "smtp.gmail.com"  # Replace with your email provider's SMTP server
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = os.getenv("EMAIL_USERNAME")  # Your email
-app.config["MAIL_PASSWORD"] = os.getenv("EMAIL_PASSWORD")  # Your email password
+app.config["MAIL_USERNAME"] = os.getenv("EMAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("EMAIL_PASSWORD")
 mail = Mail(app)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Ollama API configuration
+OLLAMA_API_URL = "http://localhost:11434/api/generate"  # Ollama API endpoint
 
 # Serve static files
 @app.route("/static/<path:filename>")
@@ -71,17 +71,13 @@ def register():
             logger.error("Missing required fields")
             return jsonify({"success": False, "message": "All fields are required"}), 400
 
-        # Check if the user already exists
         existing_user = mongo.db.users.find_one({"email": email})
         if existing_user:
             logger.error("User already exists")
             return jsonify({"success": False, "message": "This email is already registered. Try logging in or using a different email."}), 400
 
-
-        # Hash the password
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
-        # Insert the new user into the database
         user_data = {
             "name": name,
             "email": email,
@@ -97,6 +93,7 @@ def register():
         logger.error(f"Error during registration: {e}")
         return jsonify({"success": False, "message": "An error occurred during registration"}), 500
 
+# Send OTP Endpoint
 @app.route("/send-otp", methods=["POST"])
 def send_otp():
     try:
@@ -106,18 +103,15 @@ def send_otp():
         if not email:
             return jsonify({"success": False, "message": "Email is required"}), 400
 
-        # Generate a 4-digit OTP
         otp = str(random.randint(1000, 9999))
-        expiry_time = datetime.utcnow() + timedelta(minutes=15)  # OTP expires in 15 minutes
+        expiry_time = datetime.utcnow() + timedelta(minutes=15)
 
-        # Store OTP in the database
         mongo.db.otp_verification.update_one(
             {"email": email},
             {"$set": {"otp": otp, "expires_at": expiry_time}},
             upsert=True
         )
 
-        # Send OTP via email
         msg = Message(
             subject="Your OTP Code",
             sender=app.config["MAIL_USERNAME"],
@@ -132,8 +126,7 @@ def send_otp():
         logger.error(f"Error sending OTP: {e}")
         return jsonify({"success": False, "message": "An error occurred"}), 500
 
-
-
+# Verify OTP Endpoint
 @app.route("/verify-otp", methods=["POST"])
 def verify_otp():
     try:
@@ -144,29 +137,23 @@ def verify_otp():
         password = data.get("password")
         otp = data.get("otp")
 
-        # Validate all fields
         if not all([name, email, roll_number, password, otp]):
             return jsonify({"success": False, "message": "All fields are required"}), 400
 
-        # Fetch OTP from the database
         otp_record = mongo.db.otp_verification.find_one({"email": email})
 
         if not otp_record or otp_record["otp"] != otp:
             return jsonify({"success": False, "message": "Invalid OTP"}), 400
 
-        # Check if OTP has expired
         if otp_record["expires_at"] < datetime.utcnow():
             return jsonify({"success": False, "message": "OTP has expired"}), 400
 
-        # Check if the user already exists
         existing_user = mongo.db.users.find_one({"email": email})
         if existing_user:
             return jsonify({"success": False, "message": "This email is already registered"}), 400
 
-        # Hash the password
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
-        # Insert the user into the database
         mongo.db.users.insert_one({
             "name": name,
             "email": email,
@@ -174,7 +161,6 @@ def verify_otp():
             "password": hashed_password
         })
 
-        # Remove OTP record after successful verification
         mongo.db.otp_verification.delete_one({"email": email})
 
         return jsonify({"success": True, "message": "User registered successfully"}), 201
@@ -182,7 +168,6 @@ def verify_otp():
     except Exception as e:
         logger.error(f"Error verifying OTP: {e}")
         return jsonify({"success": False, "message": "An error occurred"}), 500
-
 
 # User Login Endpoint
 @app.route("/login", methods=["POST"])
@@ -198,22 +183,20 @@ def login():
             logger.error("Missing email or password")
             return jsonify({"success": False, "message": "Email and password are required"}), 400
 
-        # Check if the user exists
         user = mongo.db.users.find_one({"email": email})
         if user and bcrypt.check_password_hash(user["password"], password):
-            session["user"] = email  # Store user email in session
+            session["user"] = email
             logger.debug(f"User logged in successfully: {email}")
             return jsonify({"success": True, "message": "Login successful", "redirect": url_for("chat")}), 200
 
         logger.error("Invalid credentials")
         return jsonify({"success": False, "message": "Incorrect email or password. Please check and try again."}), 401
 
-
     except Exception as e:
         logger.error(f"Error during login: {e}")
         return jsonify({"success": False, "message": "An error occurred during login"}), 500
-    
 
+# Ask Endpoint (Updated to use Ollama)
 @app.route("/ask", methods=["POST"])
 def ask():
     if "user" not in session:
@@ -226,87 +209,107 @@ def ask():
 
         username = session["user"]
 
-        # Fetch user's existing questions
+        # Check if the question already exists for the user
         user_query_doc = mongo.db.questions.find_one({"username": username})
-
         if user_query_doc:
-            # Extract existing questions (ignoring case)
             existing_questions = {q["qns"].lower() for q in user_query_doc.get("queries", [])}
-
             if question.lower() not in existing_questions:
-                # Append only if the question is new
                 mongo.db.questions.update_one(
                     {"username": username},
                     {"$push": {"queries": {"qns": question, "timestamp": datetime.utcnow()}}}
                 )
         else:
-            # If no previous queries exist, create a new document
             query_data = {
                 "username": username,
                 "queries": [{"qns": question, "timestamp": datetime.utcnow()}]
             }
             mongo.db.questions.insert_one(query_data)
 
-        # Simulated response (Replace this with chatbot logic)
-        answer = f"I received your question: {question}"
-
-        return jsonify({"success": True, "answer": answer}), 200
-
-    except Exception as e:
-        logger.error(f"Error saving query: {e}")
-        return jsonify({"success": False, "message": "An error occurred"}), 500
-
-
-# Save User Query to MongoDB
-@app.route("/save-query", methods=["POST"])
-def save_query():
-    if "user" not in session:
-        return jsonify({"success": False, "message": "User not logged in"}), 401
-    try:
-        data = request.json
-        query = data.get("query")
-        if not query:
-            return jsonify({"success": False, "message": "Query is required"}), 400
-
-        query_data = {
-            "email": session["user"],
-            "query": query,
-            "timestamp": datetime.utcnow()
+        # Send the question to Ollama
+        payload = {
+            "model": "gemma:2b",  # Replace with your model name
+            "prompt": question,
+            "stream": False  # Set to True if you want streaming responses
         }
-        mongo.db.questions.insert_one(query_data)
-        return jsonify({"success": True, "message": "Query saved"}), 200
-    except Exception as e:
-        logger.error(f"Error saving query: {e}")
-        return jsonify({"success": False, "message": "An error occurred"}), 500
+        response = requests.post(OLLAMA_API_URL, json=payload)
+        response.raise_for_status()
 
-# Retrieve User Queries
+        # Extract the generated response
+        generated_text = response.json().get("response", "No response generated")
+
+        return jsonify({"success": True, "answer": generated_text}), 200
+
+    except Exception as e:
+        logger.error(f"Error during question processing: {e}")
+        return jsonify({"success": False, "message": "An error occurred"}), 500
+    
+
 @app.route("/get-queries", methods=["GET"])
 def get_queries():
     if "user" not in session:
-        return jsonify({"success": False, "message": "Please log in to view your queries."}), 401
+        return jsonify({"success": False, "message": "User not logged in"}), 401
     try:
         username = session["user"]
-
-        # Fetch only queries belonging to the logged-in user
         user_query_doc = mongo.db.questions.find_one({"username": username})
 
         if not user_query_doc:
             return jsonify({"success": True, "queries": []}), 200
 
-        # Extract queries specific to the logged-in user
-        queries = user_query_doc.get("queries", [])
+        # Deduplicate while preserving order and keeping latest entries
+        seen = set()
+        deduped_queries = []
+        
+        # Reverse to process oldest first, then reverse again to maintain recent-first order
+        for query in reversed(user_query_doc.get("queries", [])):
+            clean_q = query["qns"].strip().lower()
+            if clean_q not in seen:
+                seen.add(clean_q)
+                deduped_queries.append(query)
+        
+        # Reverse back to show most recent first
+        deduped_queries.reverse()
 
-        # Convert timestamps to a readable format
-        for query in queries:
+        # Format timestamps
+        for query in deduped_queries:
             if "timestamp" in query:
                 query["timestamp"] = query["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
 
-        return jsonify({"success": True, "queries": queries}), 200
+        return jsonify({"success": True, "queries": deduped_queries}), 200
 
     except Exception as e:
         logger.error(f"Error retrieving queries: {e}")
         return jsonify({"success": False, "message": "Something went wrong. Please try again later."}), 500
+    
 
+@app.route("/recent-questions", methods=["GET"])
+def recent_questions():
+    if "user" not in session:
+        return jsonify({"success": False, "message": "User not logged in"}), 401
+
+    try:
+        username = session["user"]
+        user_query_doc = mongo.db.questions.find_one({"username": username}, {"_id": 0, "queries": 1})
+
+        if user_query_doc and "queries" in user_query_doc:
+            # Remove duplicate questions while preserving order
+            seen_questions = set()
+            unique_queries = []
+            for query in user_query_doc["queries"]:
+                if query["qns"].lower() not in seen_questions:
+                    seen_questions.add(query["qns"].lower())
+                    unique_queries.append(query)
+
+            # Sort by timestamp in descending order (most recent first)
+            unique_queries.sort(key=lambda x: x["timestamp"], reverse=True)
+
+            return jsonify({"success": True, "questions": unique_queries}), 200
+        else:
+            return jsonify({"success": True, "questions": []}), 200
+
+    except Exception as e:
+        logger.error(f"Error fetching recent questions: {e}")
+        return jsonify({"success": False, "message": "An error occurred"}), 500
+    
 
 # Serve chat.html (Chat Page)
 @app.route("/chat")
@@ -344,15 +347,11 @@ def forgot_password_submit():
         if not user:
             return jsonify({"success": False, "message": "Email not registered"}), 404
 
-        # Generate a 4-digit OTP
         otp = str(random.randint(1000, 9999))
-        expiry_time = datetime.utcnow() + timedelta(minutes=15)  # OTP expires in 15 mins
-        otp_expires_at = datetime.utcnow() + timedelta(minutes=15) 
+        expiry_time = datetime.utcnow() + timedelta(minutes=15)
 
-        # Store the OTP with expiry time
-        mongo.db.users.update_one({"email": email}, {"$set": {"reset_otp": otp, "otp_expires_at": otp_expires_at}})
+        mongo.db.users.update_one({"email": email}, {"$set": {"reset_otp": otp, "otp_expires_at": expiry_time}})
 
-        # Send OTP via email
         msg = Message(
             subject="Password Reset OTP",
             sender="your-email@example.com",
@@ -366,8 +365,8 @@ def forgot_password_submit():
     except Exception as e:
         logger.error(f"Error during forgot password: {e}")
         return jsonify({"success": False, "message": "An error occurred"}), 500
-    
-# Reset Password Page
+
+# Reset Password Endpoint
 @app.route("/reset-password", methods=["POST"])
 def reset_password():
     try:
@@ -378,7 +377,6 @@ def reset_password():
         if not all([email, new_password]):
             return jsonify({"success": False, "message": "Email and new password are required"}), 400
 
-        # Update the password in the database
         hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
         mongo.db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
 
@@ -387,9 +385,8 @@ def reset_password():
     except Exception as e:
         logger.error(f"Error resetting password: {e}")
         return jsonify({"success": False, "message": "An error occurred"}), 500
-    
-# Verify OTP Endpoint
-# Verify OTP for Password Reset (Rename this route)
+
+# Verify OTP for Password Reset
 @app.route("/verify-reset-otp", methods=["POST"])
 def verify_reset_otp():
     try:
@@ -404,15 +401,12 @@ def verify_reset_otp():
         if not user or "reset_otp" not in user or "otp_expires_at" not in user:
             return jsonify({"success": False, "message": "Invalid OTP request"}), 400
 
-        # Check if OTP has expired
         if datetime.utcnow() > user["otp_expires_at"]:
             return jsonify({"success": False, "message": "OTP has expired. Please request a new one."}), 400
 
-        # Check if OTP matches
         if user["reset_otp"] != otp:
             return jsonify({"success": False, "message": "Invalid OTP"}), 400
 
-        # OTP is correct, clear OTP fields
         mongo.db.users.update_one({"email": email}, {"$unset": {"reset_otp": "", "otp_expires_at": ""}})
 
         return jsonify({"success": True, "message": "OTP verified successfully"}), 200
@@ -420,33 +414,34 @@ def verify_reset_otp():
     except Exception as e:
         logger.error(f"Error during OTP verification: {e}")
         return jsonify({"success": False, "message": "An error occurred"}), 500
-    
+
+# Profile Page
 @app.route('/profile')
 def profile():
     if 'user' not in session:
         return redirect(url_for('index'))
-    
+
     user = mongo.db.users.find_one({"email": session['user']})
     if user:
         return render_template('profile.html')
     return redirect(url_for('index'))
 
+# Get Profile Data
 @app.route('/get-profile')
 def get_profile():
     if 'user' not in session:
         return jsonify({"success": False}), 401
-    
+
     user = mongo.db.users.find_one({"email": session['user']}, {'_id': 0, 'password': 0})
     if user:
         return jsonify({"success": True, "user": user})
     return jsonify({"success": False}), 404
 
-
 # Logout
 @app.route("/logout")
 def logout():
-    session.pop("user", None)  # Remove user from session
+    session.pop("user", None)
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)
