@@ -1,0 +1,12 @@
+Flask
+Flask-PyMongo
+Flask-Bcrypt
+Flask-CORS
+Flask-Mail
+python-dotenv
+pymongo
+bcrypt
+gunicorn
+requests
+flask-wtf
+flask-limiter

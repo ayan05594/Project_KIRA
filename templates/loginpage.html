@@ -1,248 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - KiRA</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-      * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-abox;
-      font-family: Arial, Helvetica, sans-serif;
-      }
-      body {
-      background: #1e2a38;
-      background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      }
-      .navbar {
-      width: 100%;
-      background-color: rgba(36, 52, 71, 0.9); /* Transparent background */
-      padding: 20px 50px; /* Increased padding for bigger navbar */
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      position: fixed;
-      top: 0;
-      z-index: 10;
-      }
-      .navbar .logo {
-      font-size: 24px; /* Slightly bigger logo */
-      font-weight: bold;
-      color: #38ef7d;
-      text-decoration: none;
-      }
-      .navbar ul {
-      list-style: none;
-      display: flex;
-      gap: 20px;
-      }
-      .navbar ul li {
-      display: inline-block;
-      }
-      .navbar ul li a {
-      text-decoration: none;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      transition: background 0.3s ease;
-      }
-      .navbar ul li a:hover {
-      background: #38ef7d;
-      color: #1e2a38;
-      }
-      .wrapper {
-      width: 420px; /* Increased width */
-      background: rgba(36, 52, 71, 0.9); /* Transparent background */
-      padding: 40px 50px; /* Increased padding */
-      border-radius: 10px;
-      box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.7), -8px -8px 15px rgba(255, 255, 255, 0.1);
-      margin-top: 120px; /* Adjusted margin for bigger navbar */
-      text-align: center;
-      }
-      h1 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: white;
-      }
-      .input-box {
-      position: relative;
-      margin-bottom: 20px;
-      }
-      .input-box input {
-      width: 100%;
-      padding: 12px 35px 12px 15px;
-      border: none;
-      border-radius: 50px;
-      background: rgba(30, 42, 56, 0.8); /* Slightly transparent input background */
-      color: white;
-      font-size: 14px;
-      outline: none;
-      transition: all 0.3s;
-      }
-      .input-box input:focus {
-      transform: scale(1.05);
-      box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.9), inset -5px -5px 10px rgba(255, 255, 255, 0.2);
-      }
-      .input-box i {
-      position: absolute;
-      top: 50%;
-      right: 15px;
-      transform: translateY(-50%);
-      color: white;
-      font-size: 20px;
-      }
-      .Remember-Forgot {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      font-size: 14px;
-      }
-      .Remember-Forgot label {
-      display: flex;
-      align-items: center;
-      }
-      .Remember-Forgot a {
-      text-decoration: none;
-      color: #38ef7d;
-      transition: color 0.3s ease;
-      }
-      .Remember-Forgot a:hover {
-      color: #11998e;
-      }
-      .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 50px;
-      background: linear-gradient(to right, #11998e, #38ef7d);
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.3s;
-      }
-      .btn:hover {
-      background: linear-gradient(to right, #38ef7d, #11998e);
-      transform: scale(1.05);
-      }
-      .register-link {
-      margin-top: 20px;
-      font-size: 14px;
-      }
-      .register-link a {
-      text-decoration: none;
-      color: #38ef7d;
-      transition: color 0.3s ease;
-      }
-      .register-link a:hover {
-      color: #11998e;
-      }
-      @keyframes fadeIn {
-      0% {
-      opacity: 0;
-      }
-      100% {
-      opacity: 1;
-      }
-      }
-      @keyframes fadeInUp {
-      0% {
-      opacity: 0;
-      transform: translateY(20px);
-      }
-      100% {
-      opacity: 1;
-      transform: translateY(0);
-      }
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body {
+            background: #1e2a38 url("{{ url_for('static', filename='images/bg.jpeg') }}") no-repeat center;
+            background-size: cover;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            width: 100%;
+            background-color: rgba(36, 52, 71, 0.9);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            z-index: 10;
+        }
+        .navbar .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #38ef7d;
+            text-decoration: none;
+        }
+
+        /* Hamburger Menu */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+        }
+        .menu-toggle i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 15px;
+        }
+        .navbar ul li {
+            display: inline-block;
+        }
+        .navbar ul li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .navbar ul li a:hover {
+            background: #38ef7d;
+            color: #1e2a38;
+        }
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            .navbar ul {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 0;
+                width: 200px;
+                background: rgba(36, 52, 71, 0.95);
+                padding: 10px;
+                border-radius: 5px;
+                text-align: right;
+            }
+            .navbar ul.show {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Login Form */
+        .wrapper {
+            width: 90%;
+            max-width: 400px;
+            background: rgba(36, 52, 71, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7);
+            margin-top: 100px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: white;
+        }
+        .input-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .input-box input {
+            width: 100%;
+            padding: 12px 35px 12px 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(30, 42, 56, 0.8);
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .input-box i {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 18px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(to right, #11998e, #38ef7d);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .btn:hover {
+            background: linear-gradient(to right, #38ef7d, #11998e);
+            transform: scale(1.05);
+        }
+        .register-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .register-link a {
+            text-decoration: none;
+            color: #38ef7d;
+        }
     </style>
-  </head>
-  <body>
-    <!-- Navigation Bar -->
+</head>
+<body>
+
+<!-- Navigation Bar -->
 <div class="navbar">
-  <a href="#" class="logo">KIIT Intelligent Responsive Assistant</a>
-  <ul>
-    <li><a href="{{ url_for('about') }}">About us</a></li>
-    <li><a href="{{ url_for('contact') }}">Contact</a></li>
-  </ul>
+    <a href="#" class="logo">KIIT Intelligent Responsive Assistant</a>
+    <div class="menu-toggle">
+        <i class="bx bx-menu"></i>
+    </div>
+    <ul>
+        <li><a href="{{ url_for('about') }}">About Us</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+    </ul>
 </div>
 
 <!-- Login Form -->
 <div class="wrapper">
-  <form id="login-form">
-    <h1>Login</h1>
-    <!-- Add CSRF Token -->
-    <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
-    
-    <div class="input-box">
-      <input type="email" id="email" name="email" placeholder="Email" required>
-      <i class='bx bxs-envelope'></i>
-    </div>
-    <div class="input-box">
-      <input type="password" id="password" name="password" placeholder="Password" required>
-      <i class='bx bxs-lock-alt'></i>
-    </div>
-    <div class="Remember-Forgot">
-      <label><input type="checkbox" id="remember-me" name="remember-me"> Remember me</label>
-      <p><a href="{{ url_for('forgot_password') }}">Forgot Password</a></p>
-    </div>
-    <button type="submit" class="btn">Login</button>
-    <div class="register-link">
-      <p>Don't have an account? <a href="/register-page">Register here</a></p>
-    </div>
-  </form>
+    <form id="login-form">
+        <h1>Login</h1>
+        <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="input-box">
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <i class='bx bxs-envelope'></i>
+        </div>
+        <div class="input-box">
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <i class='bx bxs-lock-alt'></i>
+        </div>
+        <div class="Remember-Forgot">
+            <label><input type="checkbox" id="remember-me" name="remember-me"> Remember me</label>
+            <p><a href="{{ url_for('forgot_password') }}">Forgot Password?</a></p>
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <div class="register-link">
+            <p>Don't have an account? <a href="/register-page">Register here</a></p>
+        </div>
+    </form>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  $(document).ready(function () {
-    // Handle login form submission using AJAX
-    $("#login-form").submit(function (event) {
-      event.preventDefault();
+    $(document).ready(function () {
+        $(".menu-toggle").click(function () {
+            $(".navbar ul").toggleClass("show");
+        });
 
-      var email = $("#email").val();
-      var password = $("#password").val();
-      var csrf_token = $("#csrf_token").val();
+        $("#login-form").submit(function (event) {
+            event.preventDefault();
 
-      // Send the email, password, and CSRF token as JSON data to the backend
-      $.ajax({
-        type: "POST",
-        url: "/login",  // Endpoint for login
-        contentType: "application/json",
-        headers: {
-          "X-CSRFToken": csrf_token,  // Include CSRF token in headers
-        },
-        data: JSON.stringify({ email: email, password: password }),
-        success: function (response) {
-          if (response.success) {
-            // Redirect to chat page if login is successful
-            window.location.href = response.redirect;
-          } else {
-            alert(response.message); // Display error message if login fails
-          }
-        },
-        error: function (xhr) {
-          alert("Error: " + xhr.responseJSON.message);
-        }
-      });
+            var email = $("#email").val();
+            var password = $("#password").val();
+            var csrf_token = $("#csrf_token").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/login",
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": csrf_token,
+                },
+                data: JSON.stringify({ email: email, password: password }),
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = response.redirect;
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert("Error: " + xhr.responseJSON.message);
+                }
+            });
+        });
     });
-  });
 </script>
-  </body>
+
+</body>
 </html>
