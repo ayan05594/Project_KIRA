@@ -20,6 +20,14 @@ import re
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+import google.generativeai as genai
+
+# Configure Gemini API
+GEMINI_API_KEY = "AIzaSyCdEXijhZROB9AdOWQKqe3LhiEL61M4Azg"  # Replace with your Gemini API key
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Initialize Gemini model
+gemini_model = genai.GenerativeModel("gemini-1.5-flash")  # Use the appropriate model name
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
@@ -226,6 +234,7 @@ def login():
 def ask():
     if "user" not in session:
         return jsonify({"success": False, "message": "User not logged in"}), 401
+
     try:
         data = request.json
         question = data.get("question")
@@ -250,26 +259,18 @@ def ask():
             }
             mongo.db.questions.insert_one(query_data)
 
-        # Send the question to Ollama
-        payload = {
-            "model": "gemma:2b",  # Replace with your model name
-            "prompt": question,
-            "stream": False  # Set to True if you want streaming responses
-        }
-        response = requests.post(OLLAMA_API_URL, json=payload)
-        response.raise_for_status()
+        # Send the question to Gemini
+        response = gemini_model.generate_content(question)
+        generated_text = response.text
 
-        # Extract the generated response
-        generated_text = response.json().get("response", "No response generated")
         # Ensure proper formatting
-        formatted_text = generated_text.replace("*", "").replace("\n", " ") 
+        formatted_text = generated_text.replace("*", "").replace("\n", " ")
 
         return jsonify({"success": True, "answer": formatted_text}), 200
 
     except Exception as e:
         logger.error(f"Error during question processing: {e}")
-        return jsonify({"success": False, "message": "An error occurred"}), 500
-    
+        return jsonify({"success": False, "message": "An error occurred"}), 500    
 
 @app.route("/get-queries", methods=["GET"])
 @csrf.exempt
