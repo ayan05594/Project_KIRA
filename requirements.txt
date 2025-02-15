@@ -10,3 +10,4 @@ gunicorn
 requests
 flask-wtf
 flask-limiter
+google-generativeai
