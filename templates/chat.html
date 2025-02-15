@@ -46,12 +46,15 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            
         }
 
         .navbar ul {
             list-style: none;
             display: flex;
             gap: 20px;
+            margin: 0;
+            padding: 0;
         }
 
         .navbar ul li {
@@ -139,13 +142,7 @@
             margin-top: 80px;
         }
 
-        .chat-header {
-            padding: 20px;
-            background-color: #40414f;
-            display: flex;
-            align-items: center;
-            color: white;
-        }
+        
 
         .chat-messages {
             flex: 1;
@@ -244,11 +241,101 @@
                 display: none;
             }
         }
+
+         /* Hamburger Menu */
+         .hamburger {
+            display: none;
+            cursor: pointer;
+            padding: 10px;
+            margin-right: 15px;
+            margin-left: -20px;
+        }
+
+        .hamburger .line {
+            width: 25px;
+            height: 2px;
+            background-color: white;
+            margin: 5px 0;
+            transition: 0.4s;
+        }
+
+        /* Mobile Sidebar */
+        .mobile-sidebar {
+            position: fixed;
+            left: -260px;
+            top: 80px;
+            width: 260px;
+            height: calc(100vh - 80px);
+            background-color: #202123;
+            color: white;
+            transition: 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .mobile-sidebar.active {
+            left: 0;
+        }
+
+        .mobile-nav-links {
+            margin-bottom: 20px;
+        }
+
+        .mobile-nav-links a {
+            display: block;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .mobile-nav-links a:hover {
+            background-color: #343541;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar ul {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-chat {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-sidebar .history-section {
+                margin-top: 20px;
+                border-top: 1px solid #343541;
+                padding-top: 20px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-sidebar {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
+           <!-- Navigation Bar -->
     <div class="navbar">
+        <div class="hamburger" onclick="toggleMobileMenu()">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
         <a href="#" class="logo">
             <img src="static/images/bot_logo.jpg" alt="Logo" />
             KiRA
@@ -260,7 +347,26 @@
         </ul>
     </div>
 
-    <!-- Sidebar -->
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar">
+        <div class="profile">
+            <div class="profile-pic"></div>
+            <a href="/profile" style="color: white; text-decoration: none;">Your Profile</a>
+        </div>
+        <div class="mobile-nav-links">
+            <a href="{{ url_for('about') }}">About us</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+            <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+        </div>
+        <div class="history-section">
+            <h4>Recent Questions</h4>
+            <ul id="mobile-question-history">
+                <!-- Dynamic questions will be inserted here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Desktop Sidebar -->
     <div class="sidebar">
         <div class="profile">
             <div class="profile-pic"></div>
@@ -276,11 +382,6 @@
 
     <!-- Main Chat Area -->
     <div class="main-chat">
-        <div class="chat-header">
-            <img class="profile-pic" src="static/images/bot_logo.jpg" alt="Bot Logo" />
-            <span>KiRA</span>
-        </div>
-        
         <div class="chat-messages" id="chat-messages">
             <!-- Initial bot message -->
             <div class="message bot">
@@ -290,16 +391,71 @@
                 </div>
             </div>
         </div>
-
         <div class="chat-input">
             <input type="text" id="user-input" placeholder="Type your message here..." 
                    onkeypress="if(event.key === 'Enter') sendMessage()" />
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
-
     <!-- JavaScript for Interactivity -->
     <script>
+         // Mobile menu toggle
+         function toggleMobileMenu() {
+            document.querySelector('.mobile-sidebar').classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileSidebar = document.querySelector('.mobile-sidebar');
+            const hamburger = document.querySelector('.hamburger');
+            
+            if (!mobileSidebar.contains(event.target) && !hamburger.contains(event.target)) {
+                mobileSidebar.classList.remove('active');
+            }
+        });
+
+ // Set to track unique questions
+const uniqueQuestions = new Set();
+
+function addToHistory(question) {
+    const desktopHistory = document.querySelector('#question-history');
+    const mobileHistory = document.querySelector('#mobile-question-history');
+
+    // Normalize the question (trim and convert to lowercase)
+    const normalizedQuestion = question.trim().toLowerCase();
+
+    // Check if the question already exists
+    if (uniqueQuestions.has(normalizedQuestion)) {
+        return; // Skip if the question is already in the history
+    }
+
+    // Add the question to the Set
+    uniqueQuestions.add(normalizedQuestion);
+
+    // Create list item
+    const historyItem = document.createElement('li');
+    historyItem.className = 'history-item';
+    historyItem.textContent = question;
+
+    // Add click handler
+    historyItem.onclick = function() {
+        document.getElementById("user-input").value = question; // Prefill input box
+        if (window.innerWidth <= 768) {
+            document.querySelector('.mobile-sidebar').classList.remove('active'); // Close mobile sidebar on small screens
+        }
+    };
+
+    // Add to both histories
+    desktopHistory.prepend(historyItem.cloneNode(true)); // Add to desktop history
+    mobileHistory.prepend(historyItem.cloneNode(true)); // Add to mobile history
+}
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.querySelector('.mobile-sidebar').classList.remove('active');
+            }
+        });
         document.getElementById("user-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -307,129 +463,121 @@
             }
         });
 
+        // Modified loadQuestions function
         async function loadQuestions() {
-            try {
-                const response = await fetch("/get-queries");
-                const data = await response.json();
+    try {
+        const response = await fetch("/get-queries");
+        const data = await response.json();
 
-                if (!data.success) {
-                    console.error("Failed to load questions:", data.message);
-                    return;
-                }
-
-                const recentQuestionsDiv = document.getElementById("question-history");
-                recentQuestionsDiv.innerHTML = ""; // Clear existing questions
-
-                const uniqueQuestions = new Set(); // To avoid duplicates
-                data.queries.forEach((query) => {
-                    if (!uniqueQuestions.has(query.qns.toLowerCase())) {
-                        uniqueQuestions.add(query.qns.toLowerCase());
-
-                        const listItem = document.createElement("li");
-                        listItem.classList.add("history-item");
-                        listItem.textContent = query.qns;
-
-                        // Make the question clickable to resend it in chat
-                        listItem.addEventListener("click", () => sendQuestionAgain(query.qns));
-
-                        recentQuestionsDiv.prepend(listItem); // Add new questions at the top
-                    }
-                });
-            } catch (error) {
-                console.error("Error fetching questions:", error);
-            }
+        if (!data.success) {
+            console.error("Failed to load questions:", data.message);
+            return;
         }
+
+        // Clear both histories
+        const desktopHistory = document.getElementById("question-history");
+        const mobileHistory = document.getElementById("mobile-question-history");
+        desktopHistory.innerHTML = "";
+        mobileHistory.innerHTML = "";
+
+        // Clear the Set of unique questions
+        uniqueQuestions.clear();
+
+        // Add questions from the server
+        data.queries.forEach((query) => {
+            const question = query.qns.trim();
+            if (question) {
+                addToHistory(question); // Use the centralized function to avoid duplicates
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching questions:", error);
+    }
+}
+
 
         // Load questions when the page loads
         window.onload = loadQuestions;
 
+        // Modified sendMessage function (remove manual history handling)
         async function sendMessage() {
-            const userInput = document.getElementById("user-input");
-            const chatMessages = document.getElementById("chat-messages");
-            const recentQuestionsDiv = document.getElementById("question-history");
+    const userInput = document.getElementById("user-input");
+    const chatMessages = document.getElementById("chat-messages");
+    let question = userInput.value.trim();
 
-            let question = userInput.value.trim();
-            if (question === "") return;
+    if (question === "") return;
 
-            // Add user message to chat
-            const userMessageDiv = document.createElement("div");
-            userMessageDiv.classList.add("message", "user");
-            userMessageDiv.innerHTML = `
-                <div class="profile-pic"></div>
-                <div class="message-content">${question}</div>
-            `;
-            chatMessages.appendChild(userMessageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Add user message
+    const userMessageDiv = document.createElement("div");
+    userMessageDiv.classList.add("message", "user");
+    userMessageDiv.innerHTML = `
+        <div class="profile-pic"></div>
+        <div class="message-content">${question}</div>
+    `;
+    chatMessages.appendChild(userMessageDiv);
 
-            // Clear input field
-            userInput.value = "";
+    // Clear input
+    userInput.value = "";
 
-            try {
-                // Create bot message container for typing indicator
-                const botMessageDiv = document.createElement("div");
-                botMessageDiv.classList.add("message", "bot");
+    // Immediately update history (before bot response)
+    addToHistory(question); // Add the question to both desktop and mobile histories
+    try {
+        // Create bot message container for typing indicator
+        const botMessageDiv = document.createElement("div");
+        botMessageDiv.classList.add("message", "bot");
 
-                // Add bot logo
-                const botAvatar = document.createElement("img");
-                botAvatar.src = "static/images/msg_logo.jpg"; // Ensure this path is correct
-                botAvatar.alt = "Bot Logo";
-                botAvatar.classList.add("profile-pic");
+        // Add bot logo
+        const botAvatar = document.createElement("img");
+        botAvatar.src = "static/images/msg_logo.jpg"; // Ensure this path is correct
+        botAvatar.alt = "Bot Logo";
+        botAvatar.classList.add("profile-pic");
 
-                // Create typing indicator
-                const typingIndicator = document.createElement("div");
-                typingIndicator.classList.add("message-content", "typing-indicator");
-                typingIndicator.textContent = "Kira is typing...";
+        // Create typing indicator
+        const typingIndicator = document.createElement("div");
+        typingIndicator.classList.add("message-content", "typing-indicator");
+        typingIndicator.textContent = "Kira is typing...";
 
-                // Append elements
-                botMessageDiv.appendChild(botAvatar);
-                botMessageDiv.appendChild(typingIndicator);
-                chatMessages.appendChild(botMessageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Append elements
+        botMessageDiv.appendChild(botAvatar);
+        botMessageDiv.appendChild(typingIndicator);
+        chatMessages.appendChild(botMessageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                // Send request to Flask backend
-                const response = await fetch("/ask", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ question: question }),
-                });
+        // Send request to Flask backend
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: question }),
+        });
 
-                const data = await response.json();
-                let answer = data.answer || "Sorry, I couldn't find an answer.";
+        const data = await response.json();
+        let answer = data.answer || "Sorry, I couldn't find an answer.";
 
-                // Remove typing indicator
-                botMessageDiv.removeChild(typingIndicator);
+        // Remove typing indicator
+        botMessageDiv.removeChild(typingIndicator);
 
-                // Create message content div
-                const messageContent = document.createElement("div");
-                messageContent.classList.add("message-content");
-                botMessageDiv.appendChild(messageContent);
+        // Create message content div
+        const messageContent = document.createElement("div");
+        messageContent.classList.add("message-content");
+        botMessageDiv.appendChild(messageContent);
 
-                // Simulate typing effect
-                let index = 0;
-                const typingInterval = setInterval(() => {
-                    if (index < answer.length) {
-                        messageContent.textContent += answer.charAt(index);
-                        index++;
-                        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
-                    } else {
-                        clearInterval(typingInterval);
-                    }
-                }, 50); // Adjust typing speed
-
-                // Update UI with recent question
-                const newQuestionItem = document.createElement("li");
-                newQuestionItem.classList.add("history-item");
-                newQuestionItem.textContent = question;
-                newQuestionItem.addEventListener("click", () => sendQuestionAgain(question));
-                recentQuestionsDiv.prepend(newQuestionItem); // Add new question at the top
-
-                // Fetch updated questions from the database
-                await loadQuestions();
-
-            } catch (error) {
-                console.error("Error:", error);
+        // Simulate typing effect
+        let index = 0;
+        const typingInterval = setInterval(() => {
+            if (index < answer.length) {
+                messageContent.textContent += answer.charAt(index);
+                index++;
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+            } else {
+                clearInterval(typingInterval);
             }
-        }
+        }, 50); // Adjust typing speed
+
+       
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
 
         function sendQuestionAgain(question) {
             document.getElementById("user-input").value = question; // Prefill input box

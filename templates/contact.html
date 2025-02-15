@@ -6,7 +6,6 @@
     <title>Contact Us</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        /* General Styles */
         * {
             margin: 0;
             padding: 0;
@@ -14,9 +13,7 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Hide scrollbar */
         body {
-            overflow: hidden;
             background-color: #1e2a38;
             background-image: url("{{ url_for('static', filename='images/bg.jpeg') }}");
             background-size: cover;
@@ -24,36 +21,39 @@
             background-repeat: no-repeat;
             color: white;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .navbar {
             width: 100%;
             background-color: rgba(36, 52, 71, 0.9);
-            padding: 20px 50px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             position: fixed;
             top: 0;
             z-index: 10;
         }
 
-        .navbar .logo {
+        .logo {
             font-size: 24px;
             font-weight: bold;
             color: #38ef7d;
             text-decoration: none;
         }
 
+        .menu-icon {
+            font-size: 30px;
+            cursor: pointer;
+            color: white;
+            display: none;
+        }
+
         .navbar ul {
             list-style: none;
             display: flex;
             gap: 20px;
-        }
-
-        .navbar ul li {
-            display: inline-block;
         }
 
         .navbar ul li a {
@@ -71,28 +71,21 @@
 
         .container {
             max-width: 600px;
-            margin: 100px auto 50px;
+            margin: 120px auto 50px;
             background: rgba(36, 52, 71, 0.9);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            text-align: center;
         }
 
         h1 {
-            text-align: center;
             margin-bottom: 20px;
             color: #f3f4f7;
         }
 
         .input-field {
             margin-bottom: 15px;
+            text-align: left;
         }
 
         input, textarea {
@@ -104,11 +97,6 @@
             background: rgba(255, 255, 255, 0.1);
             color: white;
             transition: all 0.3s ease;
-        }
-
-        input:focus, textarea:focus {
-            border-color: #38ef7d;
-            box-shadow: 0 0 8px rgba(56, 239, 125, 0.3);
         }
 
         textarea {
@@ -123,7 +111,6 @@
         }
 
         .btn {
-            display: inline-block;
             width: 100%;
             padding: 10px;
             background-color: #38ef7d;
@@ -133,34 +120,6 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            transition: background 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #2fc768;
-        }
-
-        .btn.loading {
-            position: relative;
-            pointer-events: none;
-        }
-
-        .btn.loading::after {
-            content: "";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translateY(-50%) rotate(360deg); }
         }
 
         .contact-icons {
@@ -172,76 +131,63 @@
             margin: 0 10px;
             font-size: 24px;
             color: #38ef7d;
-            transition: color 0.3s;
         }
 
-        .contact-icons a:hover {
-            color: #2fc768;
-        }
+        @media (max-width: 768px) {
+            .menu-icon {
+                display: block;
+            }
 
-        #success-message {
-            display: none;
-            padding: 15px;
-            background: rgba(56, 239, 125, 0.1);
-            border: 1px solid #38ef7d;
-            border-radius: 5px;
-            margin: 20px 0;
-            color: #38ef7d;
-            text-align: center;
-            font-weight: bold;
-        }
+            .navbar ul {
+                display: none;
+                flex-direction: column;
+                background: rgba(36, 52, 71, 0.9);
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                padding: 10px;
+                text-align: center;
+            }
 
-        #warning-message {
-            display: none;
-            padding: 15px;
-            background: rgba(255, 59, 48, 0.1);
-            border: 1px solid #ff3b30;
-            border-radius: 5px;
-            margin: 20px 0;
-            color: #ff3b30;
-            text-align: center;
-            font-weight: bold;
+            .navbar ul.show {
+                display: flex;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <div class="navbar">
         <a href="#" class="logo">KIRA</a>
-        <ul>
+        <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
+        <ul id="menu">
             <li><a href="{{ url_for('chat') }}">Chat</a></li>
             <li><a href="{{ url_for('about') }}">About us</a></li>
         </ul>
     </div>
 
-    <!-- Contact Form -->
     <div class="container">
         <h1>📬 Contact Us</h1>
         <form id="contactForm" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <div class="input-field">
-                <label for="name"><i class='bx bx-user'></i> Full Name</label>
+                <label for="name">Full Name</label>
                 <input type="text" id="name" name="name" placeholder="John Doe" required>
             </div>
 
             <div class="input-field">
-                <label for="email"><i class='bx bx-envelope'></i> Email Address</label>
+                <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" placeholder="john@kiit.ac.in" required>
             </div>
 
             <div class="input-field">
-                <label for="message"><i class='bx bx-message'></i> Message</label>
+                <label for="message">Message</label>
                 <textarea id="message" name="message" placeholder="Your message here..." required></textarea>
             </div>
 
-            <button type="submit" class="btn">
-                <i class='bx bx-send'></i> Send Message
-            </button>
+            <button type="submit" class="btn">Send Message</button>
         </form>
-        
-        <div id="success-message"></div>
-        <div id="warning-message"></div>
         
         <div class="contact-icons">
             <a href="mailto:kira.kiit.25@gmail.com"><i class='bx bx-envelope'></i></a>
@@ -250,6 +196,10 @@
     </div>
 
     <script>
+        function toggleMenu() {
+            document.getElementById("menu").classList.toggle("show");
+        }
+        
         document.getElementById("contactForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             
