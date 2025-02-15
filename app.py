@@ -34,7 +34,7 @@ CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 
 # MongoDB configuration
-app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017/kira")
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "mongodb://localhost:27017/kira")
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
 mongo.db.users.create_index("email", unique=True)
